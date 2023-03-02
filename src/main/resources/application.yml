@@ -1,0 +1,18 @@
+debug: true
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/final_project
+    username: postgres
+    password: qaz741
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: final.project.jd2@gmail.com
+    password: fszwvixrggbafile
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
