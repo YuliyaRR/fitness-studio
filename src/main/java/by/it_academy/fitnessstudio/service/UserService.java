@@ -1,46 +1,42 @@
 package by.it_academy.fitnessstudio.service;
 
 import by.it_academy.fitnessstudio.core.dto.*;
+import by.it_academy.fitnessstudio.core.dto.error.ErrorCode;
 import by.it_academy.fitnessstudio.core.dto.user.User;
 import by.it_academy.fitnessstudio.core.dto.user.UserCreateDTO;
-import by.it_academy.fitnessstudio.core.dto.user.UserRole;
-import by.it_academy.fitnessstudio.core.dto.user.UserStatus;
 import by.it_academy.fitnessstudio.core.exception.InvalidInputServiceMultiException;
 import by.it_academy.fitnessstudio.core.exception.InvalidInputServiceSingleException;
-import by.it_academy.fitnessstudio.core.exception.NotFoundDataBaseException;
 import by.it_academy.fitnessstudio.entity.UserEntity;
 import by.it_academy.fitnessstudio.repositories.api.UserEntityRepository;
 import by.it_academy.fitnessstudio.service.api.IUserService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import by.it_academy.fitnessstudio.validator.api.IValidator;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class UserService implements IUserService {
     private final UserEntityRepository repository;
     private final ConversionService conversionService;
+    private final IValidator<UserCreateDTO> validator;
 
-    public UserService(UserEntityRepository repository, ConversionService conversionService) {
+
+    public UserService(UserEntityRepository repository, ConversionService conversionService, IValidator<UserCreateDTO> validator) {
         this.repository = repository;
         this.conversionService = conversionService;
+        this.validator = validator;
     }
 
     @Override
     public UserEntity save(UserCreateDTO userCreateDTO) {
         if(userCreateDTO == null) {
-            throw new InvalidInputServiceSingleException("User information not submitted for create");
+            throw new InvalidInputServiceSingleException("User information not submitted for create", ErrorCode.ERROR);
         }
 
-        validateUser(userCreateDTO);
+        validator.validate(userCreateDTO);
         checkUniqueMail(userCreateDTO);
 
         return repository.save(conversionService.convert(userCreateDTO, UserEntity.class));
@@ -48,7 +44,7 @@ public class UserService implements IUserService {
 
     @Override
     public OnePage<User> getUsersPage(Integer page, Integer size) {
-        InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException("structured_error");
+        InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException(ErrorCode.STRUCTURED_ERROR);
 
         if(page == null || page < 0) {
             multiException.addSuppressed(new InvalidInputServiceMultiException("Invalid field value. Field must be 0 or greater", "page"));
@@ -58,6 +54,8 @@ public class UserService implements IUserService {
             multiException.addSuppressed(new InvalidInputServiceMultiException("Invalid field value. Field must be greater than 0", "size"));
         }
 
+        //запрашиваемая страница превышает кол-во страниц??
+
         if(multiException.getSuppressed().length != 0) {
             throw multiException;
         }
@@ -66,32 +64,28 @@ public class UserService implements IUserService {
 
         List<User> content = all.get().map(entity -> conversionService.convert(entity, User.class)).toList();
 
-        int number = all.getNumber();
-        int sizePage = all.getSize();
-        int totalPages = all.getTotalPages();
-        long totalElements = all.getTotalElements();
-        boolean first = all.isFirst();
-        int numberOfElements = all.getNumberOfElements();
-        boolean last = all.isLast();
-
-        //TODO билдер OnePage
-
-        OnePage<User> onePage = new OnePage<>(number, sizePage, totalPages, totalElements, first, numberOfElements, last, content);
-
-        return onePage;
+        return OnePage.OnePageBuilder.create(content)
+                .setNumber(all.getNumber())
+                .setSize(all.getSize())
+                .setTotalPages(all.getTotalPages())
+                .setTotalElements(all.getTotalElements())
+                .setFirst(all.isFirst())
+                .setNumberOfElements(all.getNumberOfElements())
+                .setLast(all.isLast())
+                .build();
     }
 
     @Override
     public User getUserInfo(UUID uuid) {
 
         if(uuid == null) {
-            throw new InvalidInputServiceSingleException("UUID not entered");
+            throw new InvalidInputServiceSingleException("UUID not entered", ErrorCode.ERROR);
         }
 
         Optional<UserEntity> userById = repository.findById(uuid);
 
         if (userById.isEmpty()) {
-            throw new InvalidInputServiceSingleException("User with this uuid was not found in the database");
+            throw new InvalidInputServiceSingleException("User with this uuid was not found in the database", ErrorCode.ERROR);
         }
 
         UserEntity userEntity = userById.get();
@@ -101,7 +95,7 @@ public class UserService implements IUserService {
 
     @Override
     public void update(UUID uuid, Long dtUpdate, UserCreateDTO userCreateDTO) {
-        InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException("Invalid input");
+        InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException(ErrorCode.STRUCTURED_ERROR);
 
         if(uuid == null) {
             multiException.addSuppressed(new InvalidInputServiceMultiException("UUID not entered", "uuid"));
@@ -119,14 +113,14 @@ public class UserService implements IUserService {
             throw multiException;
         }
 
-        validateUser(userCreateDTO);
+        validator.validate(userCreateDTO);
 
         String mail = userCreateDTO.getMail();
 
-        Optional<UserEntity> userById = repository.findById(uuid);//почему подсвечивает? если будет null, то выбросит ex выше??
+        Optional<UserEntity> userById = repository.findById(uuid);
 
         if (userById.isEmpty()) {
-            throw new InvalidInputServiceSingleException("User with this uuid was not found in the database");
+            throw new InvalidInputServiceSingleException("User with this uuid was not found in the database", ErrorCode.ERROR);
         }
 
         UserEntity userEntity = userById.get();
@@ -142,80 +136,16 @@ public class UserService implements IUserService {
             userEntity.setRole(userCreateDTO.getRole());
             userEntity.setStatus(userCreateDTO.getStatus());
             userEntity.setPassword(userCreateDTO.getPassword());
-            repository.save(userEntity);//?save??
+            repository.save(userEntity);
 
         } else {
-            throw new InvalidInputServiceSingleException("User with this version was not found in the database");
+            throw new InvalidInputServiceSingleException("User with this version was not found in the database", ErrorCode.ERROR);
         }
-    }
-
-    private void validateUser(UserCreateDTO userCreateDTO) {
-        InvalidInputServiceMultiException exception = new InvalidInputServiceMultiException("Invalid input");
-
-        String mail = userCreateDTO.getMail();
-
-        if(mail == null || mail.isBlank() || mail.isEmpty()){
-            exception.addSuppressed(new InvalidInputServiceMultiException("Email not entered", "email"));
-        }
-
-        Pattern pattern = Pattern.compile("^[a-zA-Z0-9!#$%&'*+/=?^_`{|},~\\-]+(?:\\\\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~\\-]+)*@+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?+\\.+[a-zA-Z]*$");
-
-        if (mail != null && !pattern.matcher(mail).matches()) {
-            exception.addSuppressed(new InvalidInputServiceMultiException("Email not validated", "email"));
-        }
-
-        String fullName = userCreateDTO.getFio();
-        if(fullName == null || fullName.isBlank() || fullName.isEmpty()){
-            exception.addSuppressed(new InvalidInputServiceMultiException("Name not entered", "fio"));
-        }
-
-        UserRole role = userCreateDTO.getRole();
-
-        if(role == null){
-            exception.addSuppressed(new InvalidInputServiceMultiException("User role not entered", "role"));
-        }
-
-        if (role != null) {//TODO: если больше нет ролей, то удалить
-            if (!role.equals(UserRole.ADMIN) && !role.equals(UserRole.USER)) {
-                exception.addSuppressed(new InvalidInputServiceMultiException("User role is invalid", "role"));
-            }
-        }
-
-        UserStatus status = userCreateDTO.getStatus();
-
-        if(status == null) {
-            exception.addSuppressed(new InvalidInputServiceMultiException("User status not entered", "status"));
-        }
-
-        if(status != null) {
-            if (!status.equals(UserStatus.WAITING_ACTIVATION) && !status.equals(UserStatus.ACTIVATED)) {
-                exception.addSuppressed(new InvalidInputServiceMultiException("User status is invalid", "status"));
-            }
-        }
-
-        String password = userCreateDTO.getPassword();
-
-        if(password == null || password.isBlank() || password.isEmpty()){
-            exception.addSuppressed(new InvalidInputServiceMultiException("Password not entered", "password"));
-        }
-
-        if(password != null) {
-            if (password.length() < 8) {
-                exception.addSuppressed(new InvalidInputServiceMultiException("Password can't be less than 8 characters", "password"));
-            }
-        }
-
-        if(exception.getSuppressed().length != 0) {
-            throw exception;
-        }
-
-        //TODO: добавить валидацию по обязательному содержанию цифр, букв, спецсимволов
-
     }
 
     private void checkUniqueMail(UserCreateDTO userCreateDTO) {
         if(repository.existsByMail(userCreateDTO.getMail())) {
-            throw new InvalidInputServiceSingleException("Non-unique email");
+            throw new InvalidInputServiceSingleException("Non-unique email", ErrorCode.ERROR);
         }
     }
 }
