@@ -12,10 +12,12 @@ import java.util.UUID;
 public class ProductCreateDtoToEntityConverter implements Converter<ProductCreate, ProductEntity> {
     @Override
     public ProductEntity convert(ProductCreate source) {
+        LocalDateTime dtCreate = LocalDateTime.now();
+
         return ProductEntity.ProductEntityBuilder.create()
                 .setUuid(UUID.randomUUID())
-                .setDtCreate(LocalDateTime.now())
-                .setDtUpdate(LocalDateTime.now())
+                .setDtCreate(dtCreate)
+                .setDtUpdate(dtCreate)
                 .setTitle(source.getTitle())
                 .setWeight(source.getWeight())
                 .setCalories(source.getCalories())
