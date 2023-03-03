@@ -132,8 +132,10 @@ public class OnePage<T> {//TODO:билдер
         private OnePageBuilder() {
         }
 
-        public static <T> OnePageBuilder<T> create() {
-            return new OnePageBuilder<>();
+        public static <T> OnePageBuilder<T> create(List<T> content) {
+            OnePageBuilder<T> onePageBuilder = new OnePageBuilder<>();
+            onePageBuilder.setContent(content);
+            return onePageBuilder;
         }
 
         public OnePageBuilder<T> setNumber(Integer number) {
@@ -171,7 +173,7 @@ public class OnePage<T> {//TODO:билдер
             return this;
         }
 
-        public OnePageBuilder<T> setContent(List<T> content) {
+        private OnePageBuilder<T> setContent(List<T> content) {
             this.content = content;
             return this;
         }
