@@ -4,10 +4,12 @@ import by.it_academy.fitnessstudio.core.dto.IngredientCalculated;
 import by.it_academy.fitnessstudio.core.dto.product.Product;
 import by.it_academy.fitnessstudio.entity.IngredientEntity;
 import by.it_academy.fitnessstudio.entity.ProductEntity;
-import org.apache.commons.math3.util.Precision;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Component
 public class IngredientEntityToIngredientCalculatedConverter implements Converter<IngredientEntity, IngredientCalculated> {
@@ -25,13 +27,16 @@ public class IngredientEntityToIngredientCalculatedConverter implements Converte
                 = IngredientCalculated.IngredientCalculatedBuilder.create();
 
         ProductEntity productEntity = source.getProduct();
-
-        int productWeight = productEntity.getWeight();
         int ingredientWeight = source.getWeight();
-        int calIngr = (int) Math.round(productEntity.getCalories() * 1.0 / productWeight * ingredientWeight);
-        double protIngr = Precision.round(productEntity.getProteins() / productWeight * ingredientWeight, 2);
-        double fatsIngr = Precision.round(productEntity.getFats() / productWeight * ingredientWeight, 2);
-        double carbIngr = Precision.round(productEntity.getCarbohydrates() / productWeight * ingredientWeight, 2);
+
+        int scale = 2;
+        RoundingMode roundingMode = RoundingMode.HALF_UP;
+
+        BigDecimal coefficient = BigDecimal.valueOf(ingredientWeight).divide(BigDecimal.valueOf(productEntity.getWeight()), scale, roundingMode);
+        int calIngr = BigDecimal.valueOf(productEntity.getCalories()).multiply(coefficient).intValue();
+        double protIngr = BigDecimal.valueOf(productEntity.getProteins()).multiply(coefficient).setScale(scale, roundingMode).doubleValue();
+        double fatsIngr = BigDecimal.valueOf(productEntity.getFats()).multiply(coefficient).setScale(scale, roundingMode).doubleValue();
+        double carbIngr = BigDecimal.valueOf(productEntity.getCarbohydrates()).multiply(coefficient).setScale(scale, roundingMode).doubleValue();
 
         Product convert = productEntityToDtoConverter.convert(productEntity);
 
