@@ -1,14 +1,15 @@
 package by.it_academy.fitnessstudio.service;
 
 import by.it_academy.fitnessstudio.core.dto.OnePage;
+import by.it_academy.fitnessstudio.core.dto.error.ErrorCode;
 import by.it_academy.fitnessstudio.core.dto.product.Product;
 import by.it_academy.fitnessstudio.core.dto.product.ProductCreate;
 import by.it_academy.fitnessstudio.core.exception.InvalidInputServiceMultiException;
 import by.it_academy.fitnessstudio.core.exception.InvalidInputServiceSingleException;
-import by.it_academy.fitnessstudio.core.exception.NotFoundDataBaseException;
 import by.it_academy.fitnessstudio.entity.ProductEntity;
 import by.it_academy.fitnessstudio.repositories.api.ProductEntityRepository;
 import by.it_academy.fitnessstudio.service.api.IProductService;
+import by.it_academy.fitnessstudio.validator.api.IValidator;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,18 +21,20 @@ import java.util.UUID;
 public class ProductService implements IProductService {
     private final ProductEntityRepository repository;
     private final ConversionService conversionService;
+    private final IValidator<ProductCreate> validator;
 
-    public ProductService(ProductEntityRepository repository, ConversionService conversionService) {
+    public ProductService(ProductEntityRepository repository, ConversionService conversionService, IValidator<ProductCreate> validator) {
         this.repository = repository;
         this.conversionService = conversionService;
+        this.validator = validator;
     }
 
     @Override
     public void create(ProductCreate productCreate) {
         if(productCreate == null) {
-            throw new InvalidInputServiceSingleException("Product information not submitted for create");
+            throw new InvalidInputServiceSingleException("Product information not submitted for create", ErrorCode.ERROR);
         }
-        validateProduct(productCreate);
+        validator.validate(productCreate);
         checkUniqueTitle(productCreate);
         ProductEntity productEntity = conversionService.convert(productCreate, ProductEntity.class);
         repository.save(productEntity);
@@ -39,7 +42,7 @@ public class ProductService implements IProductService {
 
     @Override
     public OnePage<Product> getProductsPage(Integer page, Integer size) {
-        InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException("structured_error");
+        InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException(ErrorCode.STRUCTURED_ERROR);
 
         if(page == null || page < 0) {
             multiException.addSuppressed(new InvalidInputServiceMultiException("Invalid field value. Field must be 0 or greater", "page"));
@@ -69,7 +72,7 @@ public class ProductService implements IProductService {
 
     @Override
     public void updateProduct(UUID uuid, Long dtUpdate, ProductCreate productCreate) {
-        InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException("Invalid input");
+        InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException(ErrorCode.STRUCTURED_ERROR);
 
         if(uuid == null) {
             multiException.addSuppressed(new InvalidInputServiceMultiException("UUID not entered", "uuid"));
@@ -93,14 +96,14 @@ public class ProductService implements IProductService {
             throw multiException;
         }
 
-        validateProduct(productCreate);
+        validator.validate(productCreate);
 
         String productCreateTitle = productCreate.getTitle();
 
         Optional<ProductEntity> productById = repository.findById(uuid);
 
         if(productById.isEmpty()){
-            throw new InvalidInputServiceSingleException("Product with this uuid doesn't exist");
+            throw new InvalidInputServiceSingleException("Product with this uuid doesn't exist", ErrorCode.ERROR);
         }
 
         ProductEntity productEntity = productById.get();
@@ -119,19 +122,19 @@ public class ProductService implements IProductService {
             productEntity.setCarbohydrates(productCreate.getCarbohydrates());
             repository.save(productEntity);
         } else {
-            throw new InvalidInputServiceSingleException("Product with this version doesn't exist");
+            throw new InvalidInputServiceSingleException("Product with this version doesn't exist", ErrorCode.ERROR);
         }
     }
 
     @Override
     public Product get(UUID uuid) {//удалить, если не используется
         if(uuid == null) {
-            throw new InvalidInputServiceSingleException("UUID not entered");
+            throw new InvalidInputServiceSingleException("UUID not entered", ErrorCode.ERROR);
         }
         Optional<ProductEntity> productById = repository.findById(uuid);
 
         if(productById.isEmpty()){
-            throw new NotFoundDataBaseException("Product with this uuid was not found in the database");
+            throw new InvalidInputServiceSingleException("Product with this uuid was not found in the database", ErrorCode.ERROR);
         }
 
         ProductEntity productEntity = productById.get();
@@ -144,60 +147,21 @@ public class ProductService implements IProductService {
     @Override
     public ProductEntity getEntity(UUID uuid) {
         if(uuid == null) {
-            throw new InvalidInputServiceSingleException("UUID not entered");
+            throw new InvalidInputServiceSingleException("UUID not entered", ErrorCode.ERROR);
         }
 
         Optional<ProductEntity> productById = repository.findById(uuid);
 
         if(productById.isEmpty()){
-            throw new InvalidInputServiceSingleException("Product with this uuid doesn't exist");
+            throw new InvalidInputServiceSingleException("Product with this uuid doesn't exist", ErrorCode.ERROR);
         }
 
         return productById.get();
     }
 
-
-    private void validateProduct(ProductCreate productCreate) {
-        InvalidInputServiceMultiException exception = new InvalidInputServiceMultiException("structured_error");
-
-        String title = productCreate.getTitle();
-        if(title == null || title.isBlank() || title.isEmpty()){
-            exception.addSuppressed(new InvalidInputServiceMultiException("Title not entered", "title"));
-        }
-
-        int weight = productCreate.getWeight();
-        if(weight <= 0) {
-            exception.addSuppressed(new InvalidInputServiceMultiException("Incorrect weight", "weight"));
-        }
-
-        int calories = productCreate.getCalories();
-        if(calories < 0) {
-            exception.addSuppressed(new InvalidInputServiceMultiException("Value is less than zero", "calories"));
-        }
-
-        double proteins = productCreate.getProteins();
-        if(proteins < 0) {
-            exception.addSuppressed(new InvalidInputServiceMultiException("Value is less than zero", "proteins"));
-        }
-
-        double fats = productCreate.getFats();
-        if(fats < 0) {
-            exception.addSuppressed(new InvalidInputServiceMultiException("Value is less than zero", "fats"));
-        }
-
-        double carbohydrates = productCreate.getCarbohydrates();
-        if(carbohydrates < 0) {
-            exception.addSuppressed(new InvalidInputServiceMultiException("Value is less than zero", "carbohydrates"));
-        }
-
-        if(exception.getSuppressed().length != 0) {
-            throw exception;
-        }
-    }
-
     private void checkUniqueTitle(ProductCreate productCreate) {
         if(repository.existsByTitle(productCreate.getTitle())) {
-            throw new InvalidInputServiceSingleException("Not a unique product name");
+            throw new InvalidInputServiceSingleException("Not a unique product name", ErrorCode.ERROR);
         }
     }
 }
