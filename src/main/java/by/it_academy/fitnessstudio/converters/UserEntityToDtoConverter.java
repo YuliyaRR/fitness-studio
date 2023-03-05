@@ -7,18 +7,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserEntityToDtoConverter implements Converter<UserEntity, User> {
-    private final LocalDateTimeToLongMillisConverter localDateTimeToLongMillisConverter;
-
-    public UserEntityToDtoConverter(LocalDateTimeToLongMillisConverter localDateTimeToLongMillisConverter) {
-        this.localDateTimeToLongMillisConverter = localDateTimeToLongMillisConverter;
-    }
 
     @Override
     public User convert(UserEntity source) {
         return User.UserBuilder.create()
                 .setUuid(source.getUuid())
-                .setDtCreate(localDateTimeToLongMillisConverter.convert(source.getDtCreate()))
-                .setDtUpdate(localDateTimeToLongMillisConverter.convert(source.getDtUpdate()))
+                .setDtCreate(source.getDtCreate())
+                .setDtUpdate(source.getDtUpdate())
                 .setMail(source.getMail())
                 .setFio(source.getFio())
                 .setRole(source.getRole())
