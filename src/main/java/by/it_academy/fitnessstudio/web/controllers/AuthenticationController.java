@@ -1,6 +1,6 @@
 package by.it_academy.fitnessstudio.web.controllers;
 
-import by.it_academy.fitnessstudio.core.dto.MailCode;
+import by.it_academy.fitnessstudio.core.dto.VerificationCode;
 import by.it_academy.fitnessstudio.core.dto.user.User;
 import by.it_academy.fitnessstudio.core.dto.user.UserLogin;
 import by.it_academy.fitnessstudio.core.dto.user.UserRegistration;
@@ -27,10 +27,10 @@ public class AuthenticationController {
     }
 
     @RequestMapping(path = "/verification", method = RequestMethod.GET)
-    public void verification(@RequestParam(name = "code") String code,
-                             @RequestParam(name = "mail")String mail){
+    public void verification(@RequestParam(name = "code") UUID code,
+                             @RequestParam(name = "mail") String mail){
 
-        authenticationService.verification(new MailCode(mail, code));
+        authenticationService.verification(new VerificationCode(mail, code));
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST)
