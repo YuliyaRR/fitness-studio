@@ -10,7 +10,7 @@ import java.time.ZoneOffset;
 public class StringMillisToLocalDateTimeDeserializer implements Converter<String, LocalDateTime> {
     @Override
     public LocalDateTime convert(String source) {
-        Long decode = Long.decode(source);
+        long decode = Long.parseLong(source);
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(decode), ZoneOffset.UTC);
     }
 }
