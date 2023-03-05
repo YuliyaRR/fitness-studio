@@ -1,0 +1,16 @@
+package by.it_academy.fitnessstudio.converters;
+
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+@Component
+public class StringMillisToLocalDateTimeDeserializer implements Converter<String, LocalDateTime> {
+    @Override
+    public LocalDateTime convert(String source) {
+        Long decode = Long.decode(source);
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(decode), ZoneOffset.UTC);
+    }
+}
