@@ -14,6 +14,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,17 +47,17 @@ public class UserService implements IUserService {
     public OnePage<User> getUsersPage(Integer page, Integer size) {
         InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException(ErrorCode.STRUCTURED_ERROR);
 
-        if(page == null || page < 0) {
+        if (page == null || page < 0) {
             multiException.addSuppressed(new InvalidInputServiceMultiException("Invalid field value. Field must be 0 or greater", "page"));
         }
 
-        if(size == null || size <= 0) {
+        if (size == null || size <= 0) {
             multiException.addSuppressed(new InvalidInputServiceMultiException("Invalid field value. Field must be greater than 0", "size"));
         }
 
         //запрашиваемая страница превышает кол-во страниц??
 
-        if(multiException.getSuppressed().length != 0) {
+        if (multiException.getSuppressed().length != 0) {
             throw multiException;
         }
 
@@ -94,7 +95,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void update(UUID uuid, Long dtUpdate, UserCreateDTO userCreateDTO) {
+    public void update(UUID uuid, LocalDateTime dtUpdate, UserCreateDTO userCreateDTO) {
         InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException(ErrorCode.STRUCTURED_ERROR);
 
         if(uuid == null) {
@@ -125,9 +126,7 @@ public class UserService implements IUserService {
 
         UserEntity userEntity = userById.get();
 
-        Long timeUpdate = conversionService.convert(userEntity.getDtUpdate(), Long.class);
-
-        if(timeUpdate.equals(dtUpdate)) {
+        if(userEntity.getDtUpdate().equals(dtUpdate)) {
             if(!userEntity.getMail().equals(mail)) {
                 checkUniqueMail(userCreateDTO);
             }

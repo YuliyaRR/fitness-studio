@@ -6,6 +6,7 @@ import by.it_academy.fitnessstudio.core.dto.user.User;
 import by.it_academy.fitnessstudio.core.dto.user.UserCreateDTO;
 import by.it_academy.fitnessstudio.entity.UserEntity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public interface IUserService {
@@ -15,6 +16,6 @@ public interface IUserService {
 
     User getUserInfo(UUID uuid);
 
-    void update(UUID uuid, Long dtUpdate, UserCreateDTO userCreateDTO);
+    void update(UUID uuid, LocalDateTime dtUpdate, UserCreateDTO userCreateDTO);
 
 }
