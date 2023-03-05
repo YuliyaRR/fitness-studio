@@ -1,9 +1,10 @@
 package by.it_academy.fitnessstudio.core.dto.user;
 
+import by.it_academy.fitnessstudio.converters.LocalDateTimeToLongMillisSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -11,9 +12,11 @@ public class User {
     @JsonProperty(index = 1)
     private UUID uuid;
     @JsonProperty(value = "dt_create", index = 2)
-    private Long dtCreate;
+    @JsonSerialize(using = LocalDateTimeToLongMillisSerializer.class)
+    private LocalDateTime dtCreate;
     @JsonProperty(value = "dt_update", index = 3)
-    private Long dtUpdate;
+    @JsonSerialize(using = LocalDateTimeToLongMillisSerializer.class)
+    private LocalDateTime dtUpdate;
     private String mail;
     private String fio;
     private UserRole role;
@@ -22,8 +25,8 @@ public class User {
     public User() {
     }
 
-    public User(UUID uuid, Long dtCreate,
-                Long dtUpdate, String mail,
+    public User(UUID uuid, LocalDateTime dtCreate,
+                LocalDateTime dtUpdate, String mail,
                 String fio, UserRole role, UserStatus status) {
         this.uuid = uuid;
         this.dtCreate = dtCreate;
@@ -42,19 +45,19 @@ public class User {
         this.uuid = uuid;
     }
 
-    public Long getDtCreate() {
+    public LocalDateTime getDtCreate() {
         return dtCreate;
     }
 
-    public void setDtCreate(Long dtCreate) {
+    public void setDtCreate(LocalDateTime dtCreate) {
         this.dtCreate = dtCreate;
     }
 
-    public Long getDtUpdate() {
+    public LocalDateTime getDtUpdate() {
         return dtUpdate;
     }
 
-    public void setDtUpdate(Long dtUpdate) {
+    public void setDtUpdate(LocalDateTime dtUpdate) {
         this.dtUpdate = dtUpdate;
     }
 
@@ -105,8 +108,8 @@ public class User {
 
     public static class UserBuilder {
         private UUID uuid;
-        private Long dtCreate;
-        private Long dtUpdate;
+        private LocalDateTime dtCreate;
+        private LocalDateTime dtUpdate;
         private String mail;
         private String fio;
         private UserRole role;
@@ -124,12 +127,12 @@ public class User {
             return this;
         }
 
-        public UserBuilder setDtCreate(Long dtCreate) {
+        public UserBuilder setDtCreate(LocalDateTime dtCreate) {
             this.dtCreate = dtCreate;
             return this;
         }
 
-        public UserBuilder setDtUpdate(Long dtUpdate) {
+        public UserBuilder setDtUpdate(LocalDateTime dtUpdate) {
             this.dtUpdate = dtUpdate;
             return this;
         }
