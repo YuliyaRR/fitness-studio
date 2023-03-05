@@ -1,12 +1,13 @@
 package by.it_academy.fitnessstudio.core.dto;
 
 import java.util.Objects;
+import java.util.UUID;
 
-public class MailCode {
+public class VerificationCode {
     private String mail;
-    private String code;
+    private UUID code;
 
-    public MailCode(String mail, String code) {
+    public VerificationCode(String mail, UUID code) {
         this.mail = mail;
         this.code = code;
     }
@@ -19,11 +20,11 @@ public class MailCode {
         this.mail = mail;
     }
 
-    public String getCode() {
+    public UUID getCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(UUID code) {
         this.code = code;
     }
 
@@ -31,8 +32,8 @@ public class MailCode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MailCode mailCode = (MailCode) o;
-        return Objects.equals(mail, mailCode.mail) && Objects.equals(code, mailCode.code);
+        VerificationCode verificationCode = (VerificationCode) o;
+        return Objects.equals(mail, verificationCode.mail) && Objects.equals(code, verificationCode.code);
     }
 
     @Override
