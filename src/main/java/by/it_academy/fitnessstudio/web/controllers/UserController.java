@@ -7,6 +7,7 @@ import by.it_academy.fitnessstudio.service.api.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -27,8 +28,8 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public OnePage<User> getUsersPage(@RequestParam(name = "page") Integer page,
-                                @RequestParam(name = "size") Integer size) {
+    public OnePage<User> getUsersPage(@RequestParam(name = "page", defaultValue = "0") Integer page,
+                                @RequestParam(name = "size", defaultValue = "20") Integer size) {
 
         return userService.getUsersPage(page, size);
     }
@@ -40,7 +41,7 @@ public class UserController {
 
     @RequestMapping(path = "/{uuid}/dt_update/{dt_update}", method = RequestMethod.PUT)
     public void updateUserInfo(@PathVariable("uuid") UUID uuid,
-                           @PathVariable("dt_update") Long dtUpdate,
+                           @PathVariable("dt_update") LocalDateTime dtUpdate,
                            @RequestBody UserCreateDTO userCreate){
         userService.update(uuid, dtUpdate, userCreate);
     }
