@@ -7,6 +7,7 @@ import by.it_academy.fitnessstudio.service.api.IProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -33,7 +34,7 @@ public class ProductController {
 
     @RequestMapping(path = "/{uuid}/dt_update/{dt_update}", method = RequestMethod.PUT)
     public void updateProduct(@PathVariable("uuid") UUID uuid,
-                              @PathVariable("dt_update") Long dtUpdate,
+                              @PathVariable("dt_update") LocalDateTime dtUpdate,
                               @RequestBody ProductCreate productCreate) {
         productService.updateProduct(uuid, dtUpdate, productCreate);
     }
