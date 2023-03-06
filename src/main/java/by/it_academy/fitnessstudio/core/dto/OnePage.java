@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Objects;
 
-public class OnePage<T> {//TODO:билдер
+public class OnePage<T> {
     @JsonProperty(index = 1)
     private Integer number;
     @JsonProperty(index = 2)
@@ -122,8 +122,8 @@ public class OnePage<T> {//TODO:билдер
     public static class OnePageBuilder<T> {
         private Integer number;
         private Integer size;
-        private Integer totalPages;//TODO: в json total_pages
-        private Long totalElements;//TODO: в json total_elements
+        private Integer totalPages;
+        private Long totalElements;
         private boolean first;
         private Integer numberOfElements;
         private boolean last;
@@ -177,7 +177,6 @@ public class OnePage<T> {//TODO:билдер
             this.content = content;
             return this;
         }
-
         public OnePage<T> build(){
             return new OnePage<>(number, size, totalPages, totalElements, first, numberOfElements, last, content);
         }
