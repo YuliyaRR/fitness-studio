@@ -14,6 +14,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,18 +61,19 @@ public class ProductService implements IProductService {
 
         List<Product> content = all.get().map(entity -> conversionService.convert(entity, Product.class)).toList();
 
-        int number = all.getNumber();
-        int sizePage = all.getSize();
-        int totalPages = all.getTotalPages();
-        long totalElements = all.getTotalElements();
-        boolean first = all.isFirst();
-        int numberOfElements = all.getNumberOfElements();
-        boolean last = all.isLast();
-        return new OnePage<>(number, sizePage, totalPages, totalElements, first, numberOfElements, last, content);//TODO:заменить на билдер
+        return OnePage.OnePageBuilder.create(content)
+                .setNumber(all.getNumber())
+                .setSize(all.getSize())
+                .setTotalPages(all.getTotalPages())
+                .setTotalElements(all.getTotalElements())
+                .setFirst(all.isFirst())
+                .setNumberOfElements(all.getNumberOfElements())
+                .setLast(all.isLast())
+                .build();
     }
 
     @Override
-    public void updateProduct(UUID uuid, Long dtUpdate, ProductCreate productCreate) {
+    public void updateProduct(UUID uuid, LocalDateTime dtUpdate, ProductCreate productCreate) {
         InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException(ErrorCode.STRUCTURED_ERROR);
 
         if(uuid == null) {
@@ -80,12 +82,6 @@ public class ProductService implements IProductService {
 
         if(dtUpdate == null) {
             multiException.addSuppressed(new InvalidInputServiceMultiException("No latest update date", "dt_update"));
-        }
-
-        if(dtUpdate != null) {
-            if (dtUpdate <= 0) {
-                multiException.addSuppressed(new InvalidInputServiceMultiException("Field must be a positive number", "dt_update"));
-            }
         }
 
         if(productCreate == null) {
@@ -108,9 +104,7 @@ public class ProductService implements IProductService {
 
         ProductEntity productEntity = productById.get();
 
-        Long timeUpdate = conversionService.convert(productEntity.getDtUpdate(), Long.class);
-
-        if(timeUpdate.equals(dtUpdate)){
+        if(productEntity.getDtUpdate().equals(dtUpdate)){
            if(!productEntity.getTitle().equals(productCreateTitle)) {
                checkUniqueTitle(productCreate);
            }
@@ -124,24 +118,6 @@ public class ProductService implements IProductService {
         } else {
             throw new InvalidInputServiceSingleException("Product with this version doesn't exist", ErrorCode.ERROR);
         }
-    }
-
-    @Override
-    public Product get(UUID uuid) {//удалить, если не используется
-        if(uuid == null) {
-            throw new InvalidInputServiceSingleException("UUID not entered", ErrorCode.ERROR);
-        }
-        Optional<ProductEntity> productById = repository.findById(uuid);
-
-        if(productById.isEmpty()){
-            throw new InvalidInputServiceSingleException("Product with this uuid was not found in the database", ErrorCode.ERROR);
-        }
-
-        ProductEntity productEntity = productById.get();
-        return Product.ProductBuilder.create()
-                .setUuid(productEntity.getUuid())
-                .setDtUpdate(conversionService.convert(productEntity.getDtUpdate(), Long.class))
-                .build();
     }
 
     @Override

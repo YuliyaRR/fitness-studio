@@ -1,8 +1,8 @@
 package by.it_academy.fitnessstudio.service.api;
 
 import by.it_academy.fitnessstudio.core.dto.OnePage;
-import by.it_academy.fitnessstudio.core.dto.Recipe;
-import by.it_academy.fitnessstudio.core.dto.RecipeCreate;
+import by.it_academy.fitnessstudio.core.dto.recipe.Recipe;
+import by.it_academy.fitnessstudio.core.dto.recipe.RecipeCreate;
 
 import java.util.UUID;
 
