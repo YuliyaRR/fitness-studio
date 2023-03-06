@@ -1,12 +1,22 @@
 package by.it_academy.fitnessstudio.core.dto.product;
 
+import by.it_academy.fitnessstudio.converters.LocalDateTimeToLongMillisSerializer;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
 public class Product {
+    @JsonProperty(index = 1)
     private UUID uuid;
-    private Long dtCreate;
-    private Long dtUpdate;
+    @JsonProperty(value = "dt_create", index = 2)
+    @JsonSerialize(using = LocalDateTimeToLongMillisSerializer.class)
+    private LocalDateTime dtCreate;
+    @JsonProperty(value = "dt_update", index = 3)
+    @JsonSerialize(using = LocalDateTimeToLongMillisSerializer.class)
+    private LocalDateTime dtUpdate;
     private String title;
     private int weight;
     private int calories;
@@ -21,7 +31,7 @@ public class Product {
         this.uuid = uuid;
     }
 
-    public Product(UUID uuid, Long dtCreate, Long dtUpdate,
+    public Product(UUID uuid, LocalDateTime dtCreate, LocalDateTime dtUpdate,
                    String title, int weight, int calories,
                    double proteins, double fats, double carbohydrates) {
         this.uuid = uuid;
@@ -91,12 +101,20 @@ public class Product {
         this.uuid = uuid;
     }
 
-    public Long getDtCreate() {
+    public LocalDateTime getDtCreate() {
         return dtCreate;
     }
 
-    public Long getDtUpdate() {
+    public LocalDateTime getDtUpdate() {
         return dtUpdate;
+    }
+
+    public void setDtCreate(LocalDateTime dtCreate) {
+        this.dtCreate = dtCreate;
+    }
+
+    public void setDtUpdate(LocalDateTime dtUpdate) {
+        this.dtUpdate = dtUpdate;
     }
 
     @Override
@@ -123,8 +141,8 @@ public class Product {
 
     public static class ProductBuilder {
         private UUID uuid;
-        private Long dtCreate;
-        private Long dtUpdate;
+        private LocalDateTime dtCreate;
+        private LocalDateTime dtUpdate;
         private String title;
         private int weight;
         private int calories;
@@ -143,12 +161,12 @@ public class Product {
             return this;
         }
 
-        public ProductBuilder setDtCreate(Long dtCreate) {
+        public ProductBuilder setDtCreate(LocalDateTime dtCreate) {
             this.dtCreate = dtCreate;
             return this;
         }
 
-        public ProductBuilder setDtUpdate(Long dtUpdate) {
+        public ProductBuilder setDtUpdate(LocalDateTime dtUpdate) {
             this.dtUpdate =dtUpdate;
             return this;
         }
