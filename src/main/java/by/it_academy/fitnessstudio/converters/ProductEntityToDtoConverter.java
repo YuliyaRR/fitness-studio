@@ -7,19 +7,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ProductEntityToDtoConverter implements Converter<ProductEntity, Product> {
-    private final LocalDateTimeToLongMillisConverter localDateTimeToLongMillisConverter;
-
-    public ProductEntityToDtoConverter(LocalDateTimeToLongMillisConverter localDateTimeToLongMillisConverter) {
-        this.localDateTimeToLongMillisConverter = localDateTimeToLongMillisConverter;
-    }
-
     @Override
     public Product convert(ProductEntity source) {
-        Product.ProductBuilder productBuilder = Product.ProductBuilder.create();
-        return productBuilder
+        return Product.ProductBuilder.create()
                 .setUuid(source.getUuid())
-                .setDtCreate(localDateTimeToLongMillisConverter.convert(source.getDtCreate()))
-                .setDtUpdate(localDateTimeToLongMillisConverter.convert(source.getDtUpdate()))
+                .setDtCreate(source.getDtCreate())
+                .setDtUpdate(source.getDtUpdate())
                 .setTitle(source.getTitle())
                 .setWeight(source.getWeight())
                 .setCalories(source.getCalories())
