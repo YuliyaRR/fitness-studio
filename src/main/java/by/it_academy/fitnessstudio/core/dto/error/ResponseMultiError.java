@@ -4,28 +4,24 @@ import java.util.List;
 import java.util.Objects;
 
 public class ResponseMultiError {
-    private final String logref = "structured_error";
+    private ErrorCode logref;
     private List<LocalError> errors;
 
     public ResponseMultiError() {
     }
 
-    /*public ResponseMultiError(String logref, List<LocalError> errors) {
+    public ResponseMultiError(ErrorCode logref, List<LocalError> errors) {
         this.logref = logref;
-        this.errors = errors;
-    }*/
-
-    public ResponseMultiError(List<LocalError> errors) {
         this.errors = errors;
     }
 
-    public String getLogref() {
+    public ErrorCode getLogref() {
         return logref;
     }
 
-    /*public void setLogref(String logref) {
+    public void setLogref(ErrorCode logref) {
         this.logref = logref;
-    }*/
+    }
 
     public List<LocalError> getErrors() {
         return errors;

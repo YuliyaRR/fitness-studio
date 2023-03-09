@@ -3,22 +3,22 @@ package by.it_academy.fitnessstudio.core.dto.error;
 import java.util.Objects;
 
 public class ResponseSingleError {
-    private String logref;
+    private ErrorCode logref;
     private String message;
 
     public ResponseSingleError() {
     }
 
-    public ResponseSingleError(String logref, String message) {
+    public ResponseSingleError(ErrorCode logref, String message) {
         this.logref = logref;
         this.message = message;
     }
 
-    public String getLogref() {
+    public ErrorCode getLogref() {
         return logref;
     }
 
-    public void setLogref(String logref) {
+    public void setLogref(ErrorCode logref) {
         this.logref = logref;
     }
 
