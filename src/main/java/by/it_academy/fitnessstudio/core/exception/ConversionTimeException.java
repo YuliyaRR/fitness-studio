@@ -2,19 +2,20 @@ package by.it_academy.fitnessstudio.core.exception;
 
 import by.it_academy.fitnessstudio.core.dto.error.ErrorCode;
 
-public class VerificationException extends RuntimeException{
+public class ConversionTimeException extends RuntimeException {
     private ErrorCode errorCode;
 
-    public VerificationException(String s, ErrorCode errorCode) {
-        super(s);
+    public ConversionTimeException(String message, ErrorCode errorCode) {
+        super(message);
         this.errorCode = errorCode;
     }
 
-    public VerificationException(String message) {
-        super(message);
+    public ConversionTimeException() {
     }
 
     public ErrorCode getErrorCode() {
         return errorCode;
     }
+
 }
+

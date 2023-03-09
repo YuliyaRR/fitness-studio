@@ -1,19 +1,19 @@
 package by.it_academy.fitnessstudio.core.exception;
 
+import by.it_academy.fitnessstudio.core.dto.error.ErrorCode;
+
 public class InvalidInputServiceMultiException extends IllegalArgumentException{
 
     private String field;
+
+    private ErrorCode errorCode;
 
     public InvalidInputServiceMultiException(String s) {
         super(s);
     }
 
-    public InvalidInputServiceMultiException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public InvalidInputServiceMultiException(Throwable cause) {
-        super(cause);
+    public InvalidInputServiceMultiException(ErrorCode errorCode) {
+        this.errorCode = errorCode;
     }
 
     public InvalidInputServiceMultiException(String s, String field) {
@@ -24,5 +24,9 @@ public class InvalidInputServiceMultiException extends IllegalArgumentException{
     @Override
     public String getLocalizedMessage() {
         return field;
+    }
+
+    public ErrorCode getErrorCode() {
+        return errorCode;
     }
 }
