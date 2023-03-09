@@ -1,12 +1,23 @@
-package by.it_academy.fitnessstudio.core.dto;
+package by.it_academy.fitnessstudio.core.dto.recipe;
 
+import by.it_academy.fitnessstudio.converters.LocalDateTimeToLongMillisSerializer;
+import by.it_academy.fitnessstudio.core.dto.ingredient.IngredientCalculated;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 public class Recipe {
+    @JsonProperty(index = 1)
     private UUID uuid;
-    private Long dtCreate;
-    private Long dtUpdate;
+    @JsonProperty(value = "dt_create", index = 2)
+    @JsonSerialize(using = LocalDateTimeToLongMillisSerializer.class)
+    private LocalDateTime dtCreate;
+    @JsonProperty(value = "dt_update", index = 3)
+    @JsonSerialize(using = LocalDateTimeToLongMillisSerializer.class)
+    private LocalDateTime dtUpdate;
     private String title;
     private List<IngredientCalculated> composition;
     private Integer weight;
@@ -18,7 +29,7 @@ public class Recipe {
     public Recipe() {
     }
 
-    public Recipe(UUID uuid, Long dtCreate, Long dtUpdate,
+    public Recipe(UUID uuid, LocalDateTime dtCreate, LocalDateTime dtUpdate,
                   String title, List<IngredientCalculated> composition,
                   Integer weight, Integer calories,
                   Double proteins, Double fats, Double carbohydrates) {
@@ -42,19 +53,19 @@ public class Recipe {
         this.uuid = uuid;
     }
 
-    public Long getDtCreate() {
+    public LocalDateTime getDtCreate() {
         return dtCreate;
     }
 
-    public void setDtCreate(Long dtCreate) {
+    public void setDtCreate(LocalDateTime dtCreate) {
         this.dtCreate = dtCreate;
     }
 
-    public Long getDtUpdate() {
+    public LocalDateTime getDtUpdate() {
         return dtUpdate;
     }
 
-    public void setDtUpdate(Long dtUpdate) {
+    public void setDtUpdate(LocalDateTime dtUpdate) {
         this.dtUpdate = dtUpdate;
     }
 
@@ -116,8 +127,8 @@ public class Recipe {
 
     public static class RecipeBuilder {
         private UUID uuid;
-        private Long dtCreate;
-        private Long dtUpdate;
+        private LocalDateTime dtCreate;
+        private LocalDateTime dtUpdate;
         private String title;
         private List<IngredientCalculated> composition;
         private Integer weight;
@@ -138,12 +149,12 @@ public class Recipe {
             return this;
         }
 
-        public RecipeBuilder setDtCreate(Long dtCreate) {
+        public RecipeBuilder setDtCreate(LocalDateTime dtCreate) {
             this.dtCreate = dtCreate;
             return this;
         }
 
-        public RecipeBuilder setDtUpdate(Long dtUpdate) {
+        public RecipeBuilder setDtUpdate(LocalDateTime dtUpdate) {
             this.dtUpdate = dtUpdate;
             return this;
         }
