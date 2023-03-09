@@ -1,12 +1,10 @@
-package by.it_academy.fitnessstudio.core.dto;
+package by.it_academy.fitnessstudio.core.dto.ingredient;
 
 import by.it_academy.fitnessstudio.core.dto.product.Product;
 
-import java.util.Objects;
-
 public class IngredientCalculated {
     private Product product;
-    private int weight;//вес продукта, добавленного в блюдо в гр/мл
+    private int weight;
     private int calories;
     private double proteins;
     private double fats;
@@ -20,7 +18,9 @@ public class IngredientCalculated {
         this.weight = weight;
     }
 
-    public IngredientCalculated(Product product, int weight, int calories, double proteins, double fats, double carbohydrates) {
+    public IngredientCalculated(Product product, int weight,
+                                int calories, double proteins,
+                                double fats, double carbohydrates) {
         this.product = product;
         this.weight = weight;
         this.calories = calories;
@@ -79,7 +79,7 @@ public class IngredientCalculated {
 
     public static class IngredientCalculatedBuilder {
         private Product product;
-        private int weight;//вес продукта, добавленного в блюдо в гр/мл
+        private int weight;
         private int calories;
         private double proteins;
         private double fats;
