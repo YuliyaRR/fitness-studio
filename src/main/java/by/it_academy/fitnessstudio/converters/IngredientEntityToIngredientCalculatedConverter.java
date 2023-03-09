@@ -1,6 +1,6 @@
 package by.it_academy.fitnessstudio.converters;
 
-import by.it_academy.fitnessstudio.core.dto.IngredientCalculated;
+import by.it_academy.fitnessstudio.core.dto.ingredient.IngredientCalculated;
 import by.it_academy.fitnessstudio.core.dto.product.Product;
 import by.it_academy.fitnessstudio.entity.IngredientEntity;
 import by.it_academy.fitnessstudio.entity.ProductEntity;
@@ -33,6 +33,7 @@ public class IngredientEntityToIngredientCalculatedConverter implements Converte
         RoundingMode roundingMode = RoundingMode.HALF_UP;
 
         BigDecimal coefficient = BigDecimal.valueOf(ingredientWeight).divide(BigDecimal.valueOf(productEntity.getWeight()), scale, roundingMode);
+
         int calIngr = BigDecimal.valueOf(productEntity.getCalories()).multiply(coefficient).intValue();
         double protIngr = BigDecimal.valueOf(productEntity.getProteins()).multiply(coefficient).setScale(scale, roundingMode).doubleValue();
         double fatsIngr = BigDecimal.valueOf(productEntity.getFats()).multiply(coefficient).setScale(scale, roundingMode).doubleValue();
