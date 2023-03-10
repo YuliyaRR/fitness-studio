@@ -4,44 +4,49 @@ import by.it_academy.fitnessstudio.core.dto.VerificationCode;
 import by.it_academy.fitnessstudio.core.dto.user.User;
 import by.it_academy.fitnessstudio.core.dto.user.UserLogin;
 import by.it_academy.fitnessstudio.core.dto.user.UserRegistration;
+import by.it_academy.fitnessstudio.service.UserHolder;
 import by.it_academy.fitnessstudio.service.api.IAuthenticationService;
+import by.it_academy.fitnessstudio.validator.api.ValidEmail;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
-
+@Validated
 @RestController
 @RequestMapping(path = "/api/v1/users")
 public class AuthenticationController {
-
     private final IAuthenticationService authenticationService;
+    private final UserHolder userHolder;
 
-    public AuthenticationController(IAuthenticationService authenticationService) {
+    public AuthenticationController(IAuthenticationService authenticationService, UserHolder userHolder) {
         this.authenticationService = authenticationService;
+        this.userHolder = userHolder;
     }
 
     @RequestMapping(path = "/registration", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public void registration(@RequestBody UserRegistration userRegistration) {
+    public void registration(@Valid @RequestBody UserRegistration userRegistration) {
         authenticationService.registration(userRegistration);
     }
 
     @RequestMapping(path = "/verification", method = RequestMethod.GET)
-    public void verification(@RequestParam(name = "code") UUID code,
-                             @RequestParam(name = "mail") String mail){
-
+    public void verification(@RequestParam(name = "code") @NotNull UUID code,
+                             @RequestParam(name = "mail") @NotNull @ValidEmail String mail){
         authenticationService.verification(new VerificationCode(mail, code));
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST)
-    public void login(@RequestBody UserLogin userLogin){
-        authenticationService.logIn(userLogin);
+    public String login(@Valid @RequestBody UserLogin userLogin){
+        return authenticationService.logIn(userLogin);
     }
 
     @RequestMapping(path = "/me", method = RequestMethod.GET)
     public User getUser(){
-        UUID uuid = UUID.fromString("89fc6b03-6152-4061-9da6-dc046edc20f5");
-        return authenticationService.get(uuid);
+        String username = userHolder.getUser().getMail();
+        return authenticationService.get(username);
     }
 
 
