@@ -9,7 +9,6 @@ import by.it_academy.fitnessstudio.core.exception.InvalidInputServiceSingleExcep
 import by.it_academy.fitnessstudio.entity.UserEntity;
 import by.it_academy.fitnessstudio.repositories.api.UserEntityRepository;
 import by.it_academy.fitnessstudio.service.api.IUserService;
-import by.it_academy.fitnessstudio.validator.api.ValidString;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.core.convert.ConversionService;
@@ -109,12 +108,6 @@ public class UserService implements IUserService {
         } else {
             throw new InvalidInputServiceSingleException("User with this version was not found in the database", ErrorCode.ERROR);
         }
-    }
-    @Override
-    public UserEntity getByMail(@ValidString String mail) {
-
-        return repository.getByMail(mail)
-                .orElseThrow(() -> new InvalidInputServiceSingleException("This email was not found in the database", ErrorCode.ERROR));
     }
 
     private void checkUniqueMail(UserCreateDTO userCreateDTO) {
