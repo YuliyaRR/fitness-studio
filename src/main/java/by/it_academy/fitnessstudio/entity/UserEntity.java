@@ -5,16 +5,10 @@ import by.it_academy.fitnessstudio.core.dto.user.UserStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Entity
 @Table(schema = "app", name = "users")
-@SecondaryTable(schema = "app", name = "verification",
-    pkJoinColumns = {
-        @PrimaryKeyJoinColumn(name = "uuid")
-    }
-)
 public class UserEntity {
     @Id
     private UUID uuid;
@@ -30,31 +24,14 @@ public class UserEntity {
     @Column(name = "dt_update")
     @Version
     private LocalDateTime dtUpdate;
-    @Column(name = "code", table = "verification")
-    private Integer code;
 
     public UserEntity() {
-    }
-
-    public UserEntity(String mail, String fio, String password) {//client
-        this.mail = mail;
-        this.fio = fio;
-        this.password = password;
-
-    }
-
-    public UserEntity(String mail, String fio, UserRole role, String password) {//stuff
-        this.mail = mail;
-        this.fio = fio;
-        this.role = role;
-        this.password = password;
     }
 
     public UserEntity(UUID uuid, String mail,
                       String fio, UserRole role,
                       UserStatus status, String password,
-                      LocalDateTime dtCreate, LocalDateTime dtUpdate,
-                      Integer code) {
+                      LocalDateTime dtCreate, LocalDateTime dtUpdate) {
         this.uuid = uuid;
         this.mail = mail;
         this.fio = fio;
@@ -63,7 +40,6 @@ public class UserEntity {
         this.password = password;
         this.dtCreate = dtCreate;
         this.dtUpdate = dtUpdate;
-        this.code = code;
     }
 
     public UUID getUuid() {
@@ -130,13 +106,6 @@ public class UserEntity {
         this.dtUpdate = dtUpdate;
     }
 
-    public Integer getCode() {
-        return code;
-    }
-
-    public void setCode(Integer code) {
-        this.code = code;
-    }
 
     public static class UserEntityBuilder {
         private UUID uuid;
@@ -147,7 +116,6 @@ public class UserEntity {
         private String password;
         private LocalDateTime dtCreate;
         private LocalDateTime dtUpdate;
-        private Integer code;
 
         private UserEntityBuilder() {
         }
@@ -196,13 +164,8 @@ public class UserEntity {
             return this;
         }
 
-        public UserEntityBuilder setCode(Integer code) {
-            this.code = code;
-            return this;
-        }
-
         public UserEntity build() {
-            return  new UserEntity(uuid, mail, fio, role, status, password, dtCreate, dtUpdate, code);
+            return  new UserEntity(uuid, mail, fio, role, status, password, dtCreate, dtUpdate);
         }
     }
 }
