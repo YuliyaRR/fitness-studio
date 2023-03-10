@@ -4,16 +4,17 @@ import by.it_academy.fitnessstudio.core.dto.VerificationCode;
 import by.it_academy.fitnessstudio.core.dto.user.User;
 import by.it_academy.fitnessstudio.core.dto.user.UserLogin;
 import by.it_academy.fitnessstudio.core.dto.user.UserRegistration;
-
-import java.util.UUID;
+import by.it_academy.fitnessstudio.validator.api.ValidEmail;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 public interface IAuthenticationService {
 
-    void registration(UserRegistration userRegistration);
+    void registration(@NotNull @Valid UserRegistration userRegistration);
 
-    void verification(VerificationCode verificationCode);
+    void verification(@NotNull @Valid VerificationCode verificationCode);
 
-    void logIn(UserLogin userLogin);
+    String logIn(@NotNull @Valid UserLogin userLogin);
 
-    User get(UUID uuid);
+    User get(@ValidEmail String mail);
 }
