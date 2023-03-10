@@ -45,8 +45,8 @@ public class AuthenticationController {
 
     @RequestMapping(path = "/me", method = RequestMethod.GET)
     public User getUser(){
-        String username = userHolder.getUser().getMail();
-        return authenticationService.get(username);
+        String mail = userHolder.getUser().getMail();
+        return authenticationService.get(mail);
     }
 
 
