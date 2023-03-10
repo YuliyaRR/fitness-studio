@@ -1,7 +1,7 @@
 package by.it_academy.fitnessstudio.validator;
 
-import by.it_academy.fitnessstudio.core.dto.Ingredient;
-import by.it_academy.fitnessstudio.core.dto.RecipeCreate;
+import by.it_academy.fitnessstudio.core.dto.ingredient.Ingredient;
+import by.it_academy.fitnessstudio.core.dto.recipe.RecipeCreate;
 import by.it_academy.fitnessstudio.core.dto.error.ErrorCode;
 import by.it_academy.fitnessstudio.core.dto.product.Product;
 import by.it_academy.fitnessstudio.core.exception.InvalidInputServiceMultiException;
@@ -43,7 +43,7 @@ public class RecipeCreateValidator implements IValidator<RecipeCreate> {
                 }
                 int weight = ingredient.getWeight();
                 if(weight <= 0) {
-                    multiException.addSuppressed(new InvalidInputServiceMultiException("Incorrect weight", "weight"));
+                    multiException.addSuppressed(new InvalidInputServiceMultiException("Value must be greater than 0", "weight"));
                 }
             }
         }

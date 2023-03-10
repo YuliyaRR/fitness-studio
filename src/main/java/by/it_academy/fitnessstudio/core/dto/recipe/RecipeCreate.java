@@ -1,4 +1,6 @@
-package by.it_academy.fitnessstudio.core.dto;
+package by.it_academy.fitnessstudio.core.dto.recipe;
+
+import by.it_academy.fitnessstudio.core.dto.ingredient.Ingredient;
 
 import java.util.List;
 import java.util.Objects;
