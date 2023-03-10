@@ -1,25 +1,26 @@
 package by.it_academy.fitnessstudio.core.dto.product;
 
+import by.it_academy.fitnessstudio.validator.api.ValidString;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+
 import java.util.Objects;
 
 public class ProductCreate {
+    @ValidString
     private String title;
+    @Positive(message = "Value must be greater than 0")
     private int weight;
+    @Positive(message = "Value must be greater than 0")
     private int calories;
+    @PositiveOrZero(message = "Value must be 0 or greater")
     private double proteins;
+    @PositiveOrZero(message = "Value must be 0 or greater")
     private double fats;
+    @PositiveOrZero(message = "Value must be 0 or greater")
     private double carbohydrates;
 
     public ProductCreate() {
-    }
-
-    public ProductCreate(String title, int weight, int calories, double proteins, double fats, double carbohydrates) {
-        this.title = title;
-        this.weight = weight;
-        this.calories = calories;
-        this.proteins = proteins;
-        this.fats = fats;
-        this.carbohydrates = carbohydrates;
     }
 
     public String getTitle() {
