@@ -1,17 +1,24 @@
 package by.it_academy.fitnessstudio.core.dto.user;
 
+import by.it_academy.fitnessstudio.validator.api.ValidEmail;
+import by.it_academy.fitnessstudio.validator.api.ValidPassword;
+import by.it_academy.fitnessstudio.validator.api.ValidString;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 
 public class UserCreateDTO {
-
+    @ValidString
+    @ValidEmail
     private String mail;
-
+    @ValidString
     private String fio;
-
+    @NotNull(message = "The entered value doesn't exist")
     private UserRole role;
-
+    @NotNull(message = "The entered value doesn't exist")
     private UserStatus status;
-
+    @ValidString
+    @ValidPassword
     private String password;
 
     public UserCreateDTO() {
