@@ -6,38 +6,51 @@ import by.it_academy.fitnessstudio.core.dto.error.ErrorCode;
 import by.it_academy.fitnessstudio.core.dto.user.*;
 import by.it_academy.fitnessstudio.core.exception.*;
 import by.it_academy.fitnessstudio.entity.UserEntity;
-import by.it_academy.fitnessstudio.repositories.api.UserEntityRepository;
+import by.it_academy.fitnessstudio.repositories.api.AuthEntityRepository;
 import by.it_academy.fitnessstudio.service.api.IAuthenticationService;
 import by.it_academy.fitnessstudio.service.api.IMailService;
 import by.it_academy.fitnessstudio.service.api.IUserService;
 import by.it_academy.fitnessstudio.service.api.IVerificationService;
+import by.it_academy.fitnessstudio.validator.api.ValidEmail;
+import by.it_academy.fitnessstudio.web.controllers.utils.JwtTokenUtil;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.time.LocalDateTime;
 import java.util.UUID;
-
+@Validated
 public class AuthenticationService implements IAuthenticationService {
-    private final UserEntityRepository repository;
+    private final AuthEntityRepository repository;
     private final IMailService mailService;
     private final IUserService userService;
     private final IVerificationService verificationService;
     private final ConversionService conversionService;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationService(UserEntityRepository repository, IMailService mailService, IUserService userService,
-                                 IVerificationService verificationService, ConversionService conversionService) {
+    public AuthenticationService(AuthEntityRepository repository,
+                                 IMailService mailService,
+                                 IUserService userService,
+                                 IVerificationService verificationService,
+                                 ConversionService conversionService,
+                                 PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.mailService = mailService;
         this.userService = userService;
         this.verificationService = verificationService;
         this.conversionService = conversionService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public void registration(UserRegistration userRegistration) {
-        if(userRegistration == null) {
-            throw new InvalidInputServiceSingleException("User information not submitted for registration", ErrorCode.ERROR);
+    public void registration(@NotNull @Valid UserRegistration userRegistration) {
+        if(!conversionService.canConvert(UserRegistration.class, UserCreateDTO.class)) {
+            throw new ConversionTimeException("Unable to convert", ErrorCode.ERROR);
         }
+
         UserCreateDTO convert = conversionService.convert(userRegistration, UserCreateDTO.class);
         userService.save(convert);
 
@@ -45,80 +58,40 @@ public class AuthenticationService implements IAuthenticationService {
         verificationService.save(new VerificationCode(userRegistration.getMail(), code));
 
         EmailDetails details = createMailForVerification(new VerificationCode(userRegistration.getMail(), code));
-        mailService.sendSimpleEmail(details);
+        mailService.sendSimpleEmail(details);// при многопоточке изменить на сохранить, а потом выборка из бд отдельным потоком
     }
 
     @Override
-    public void verification(VerificationCode verificationCode) {
-        if(verificationCode == null) {
-            throw new InvalidInputServiceSingleException("Information for verification not submitted", ErrorCode.ERROR);
-        }
-
+    @Transactional
+    public void verification(@NotNull @Valid VerificationCode verificationCode) {
         verificationService.verify(verificationCode);
-
-        //UserEntity entity = userService.getByMail(verificationCode.getMail());
-        Optional<UserEntity> byMail = repository.getByMail(verificationCode.getMail());
-
-        if (byMail.isEmpty()) {
-            throw new InvalidInputServiceSingleException("This email was not found in the database", ErrorCode.ERROR);
-        }
-
-        UserEntity userEntity = byMail.get();
-        userEntity.setStatus(UserStatus.ACTIVATED);
-        repository.save(userEntity);
+        repository.setStatusByMail(UserStatus.ACTIVATED, LocalDateTime.now(), verificationCode.getMail());
     }
 
     @Override
-    public void logIn(UserLogin userLogin) {
-        if(userLogin == null) {
-            throw new InvalidInputServiceSingleException("Information for authentication not submitted", ErrorCode.ERROR);
-        }
+    public String logIn(@NotNull @Valid UserLogin userLogin) {
+        UserEntity userEntity = repository.findByMail(userLogin.getMail())
+                .orElseThrow(() -> new InvalidLoginException("User with this email doesn't exist", ErrorCode.ERROR));
 
-        validateLogIn(userLogin);
-
-        Optional<UserEntity> byMail = repository.getByMail(userLogin.getMail());
-
-        if (byMail.isEmpty()) {
-            throw new InvalidInputServiceSingleException("Wrong email entered", ErrorCode.ERROR);
-        }
-
-        UserEntity userEntity = byMail.get();
         String passwordDB = userEntity.getPassword();
-        if(!Objects.equals(userLogin.getPassword(), passwordDB)){
+
+        if(!passwordEncoder.matches(userLogin.getPassword(), passwordDB)){
             throw new InvalidLoginException("Wrong password entered", ErrorCode.ERROR);
         }
+
+        return JwtTokenUtil.generateAccessToken(userEntity);
     }
 
     @Override
-    //предположительный вариант, параметр поиска не известен на данный момент
-    public User get(UUID uuid) {
-        return userService.getUserInfo(uuid);
-    }
+    public User get(@ValidEmail String mail) {
+        UserEntity userEntity = repository.findByMail(mail)
+                .orElseThrow(() -> new InvalidLoginException("User with this email doesn't exist", ErrorCode.ERROR));
 
-    private void validateLogIn(UserLogin userLogin) {
-        InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException(ErrorCode.STRUCTURED_ERROR);
-        String mail = userLogin.getMail();
-
-        if(mail == null || mail.isBlank() || mail.isEmpty()){
-            multiException.addSuppressed(new InvalidInputServiceMultiException("Email not entered", "mail"));
+        if(!conversionService.canConvert(UserEntity.class, User.class)) {
+            throw new ConversionTimeException("Unable to convert", ErrorCode.ERROR);
         }
 
-        String password = userLogin.getPassword();
-
-        if(password == null || password.isBlank() || password.isEmpty()){
-            multiException.addSuppressed(new InvalidInputServiceMultiException("Password not entered", "password"));
-        }
-
-        if(password != null) {
-            if (password.length() < 8) {
-                multiException.addSuppressed(new InvalidInputServiceMultiException("Password can't be less than 8 characters", "password"));
-            }
-        }
-
-        if(multiException.getSuppressed().length != 0) {
-            throw multiException;
-        }
-
+        return conversionService.convert(userEntity, User.class);
     }
 
     private EmailDetails createMailForVerification(VerificationCode verificationCode) {
