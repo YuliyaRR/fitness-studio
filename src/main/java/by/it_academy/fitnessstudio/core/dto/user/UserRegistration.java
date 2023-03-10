@@ -1,17 +1,20 @@
 package by.it_academy.fitnessstudio.core.dto.user;
 
+import by.it_academy.fitnessstudio.validator.api.ValidEmail;
+import by.it_academy.fitnessstudio.validator.api.ValidPassword;
+import by.it_academy.fitnessstudio.validator.api.ValidString;
+
 import java.util.Objects;
 
 public class UserRegistration {
+    @ValidString
+    @ValidEmail
     private String mail;
+    @ValidString
     private String fio;
+    @ValidString
+    @ValidPassword
     private String password;
-
-    public UserRegistration(String mail, String fio, String password) {
-        this.mail = mail;
-        this.fio = fio;
-        this.password = password;
-    }
 
     public UserRegistration() {
     }
