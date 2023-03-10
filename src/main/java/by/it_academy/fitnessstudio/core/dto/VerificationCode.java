@@ -1,10 +1,17 @@
 package by.it_academy.fitnessstudio.core.dto;
 
+import by.it_academy.fitnessstudio.validator.api.ValidEmail;
+import by.it_academy.fitnessstudio.validator.api.ValidString;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 import java.util.UUID;
 
 public class VerificationCode {
+    @ValidString
+    @ValidEmail
     private String mail;
+    @NotNull
     private UUID code;
 
     public VerificationCode(String mail, UUID code) {
