@@ -4,60 +4,52 @@ import by.it_academy.fitnessstudio.core.dto.OnePage;
 import by.it_academy.fitnessstudio.core.dto.error.ErrorCode;
 import by.it_academy.fitnessstudio.core.dto.product.Product;
 import by.it_academy.fitnessstudio.core.dto.product.ProductCreate;
-import by.it_academy.fitnessstudio.core.exception.InvalidInputServiceMultiException;
+import by.it_academy.fitnessstudio.core.exception.ConversionTimeException;
 import by.it_academy.fitnessstudio.core.exception.InvalidInputServiceSingleException;
 import by.it_academy.fitnessstudio.entity.ProductEntity;
 import by.it_academy.fitnessstudio.repositories.api.ProductEntityRepository;
 import by.it_academy.fitnessstudio.service.api.IProductService;
-import by.it_academy.fitnessstudio.validator.api.IValidator;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-
+@Validated
 public class ProductService implements IProductService {
     private final ProductEntityRepository repository;
     private final ConversionService conversionService;
-    private final IValidator<ProductCreate> validator;
 
-    public ProductService(ProductEntityRepository repository, ConversionService conversionService, IValidator<ProductCreate> validator) {
+    public ProductService(ProductEntityRepository repository,
+                          ConversionService conversionService) {
         this.repository = repository;
         this.conversionService = conversionService;
-        this.validator = validator;
     }
 
     @Override
-    public void create(ProductCreate productCreate) {
-        if(productCreate == null) {
-            throw new InvalidInputServiceSingleException("Product information not submitted for create", ErrorCode.ERROR);
-        }
-        validator.validate(productCreate);
+    public void create(@NotNull @Valid ProductCreate productCreate) {
         checkUniqueTitle(productCreate);
+
+        if(!conversionService.canConvert(ProductCreate.class, ProductEntity.class)) {
+            throw new ConversionTimeException("Unable to convert", ErrorCode.ERROR);
+        }
+
         ProductEntity productEntity = conversionService.convert(productCreate, ProductEntity.class);
         repository.save(productEntity);
     }
 
     @Override
-    public OnePage<Product> getProductsPage(Integer page, Integer size) {
-        InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException(ErrorCode.STRUCTURED_ERROR);
+    public OnePage<Product> getProductsPage(@NotNull Pageable pageable) {
+        Page<ProductEntity> all = repository.findAll(pageable);
 
-        if(page == null || page < 0) {
-            multiException.addSuppressed(new InvalidInputServiceMultiException("Invalid field value. Field must be 0 or greater", "page"));
+        if(!conversionService.canConvert(ProductEntity.class, Product.class)) {
+            throw new ConversionTimeException("Unable to convert", ErrorCode.ERROR);
         }
-
-        if(size == null || size <= 0) {
-            multiException.addSuppressed(new InvalidInputServiceMultiException("Invalid field value. Field must be greater than 0", "size"));
-        }
-
-        if(multiException.getSuppressed().length != 0) {
-            throw multiException;
-        }
-
-        Page<ProductEntity> all = repository.findAll(PageRequest.of(page, size));
 
         List<Product> content = all.get().map(entity -> conversionService.convert(entity, Product.class)).toList();
 
@@ -73,36 +65,12 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void updateProduct(UUID uuid, LocalDateTime dtUpdate, ProductCreate productCreate) {
-        InvalidInputServiceMultiException multiException = new InvalidInputServiceMultiException(ErrorCode.STRUCTURED_ERROR);
-
-        if(uuid == null) {
-            multiException.addSuppressed(new InvalidInputServiceMultiException("UUID not entered", "uuid"));
-        }
-
-        if(dtUpdate == null) {
-            multiException.addSuppressed(new InvalidInputServiceMultiException("No latest update date", "dt_update"));
-        }
-
-        if(productCreate == null) {
-            multiException.addSuppressed(new InvalidInputServiceMultiException("Product information not submitted for update", "product"));
-        }
-
-        if(multiException.getSuppressed().length != 0) {
-            throw multiException;
-        }
-
-        validator.validate(productCreate);
-
+    public void updateProduct(@NotNull UUID uuid, @NotNull @Past LocalDateTime dtUpdate, @NotNull @Valid ProductCreate productCreate) {
         String productCreateTitle = productCreate.getTitle();
 
-        Optional<ProductEntity> productById = repository.findById(uuid);
+        ProductEntity productEntity = repository.findById(uuid)
+                .orElseThrow(() -> new InvalidInputServiceSingleException("Product with this uuid doesn't exist", ErrorCode.ERROR));
 
-        if(productById.isEmpty()){
-            throw new InvalidInputServiceSingleException("Product with this uuid doesn't exist", ErrorCode.ERROR);
-        }
-
-        ProductEntity productEntity = productById.get();
 
         if(productEntity.getDtUpdate().equals(dtUpdate)){
            if(!productEntity.getTitle().equals(productCreateTitle)) {
@@ -121,18 +89,9 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public ProductEntity getEntity(UUID uuid) {
-        if(uuid == null) {
-            throw new InvalidInputServiceSingleException("UUID not entered", ErrorCode.ERROR);
-        }
-
-        Optional<ProductEntity> productById = repository.findById(uuid);
-
-        if(productById.isEmpty()){
-            throw new InvalidInputServiceSingleException("Product with this uuid doesn't exist", ErrorCode.ERROR);
-        }
-
-        return productById.get();
+    public ProductEntity getEntity(@NotNull UUID uuid) {
+        return repository.findById(uuid).
+                orElseThrow(() -> new InvalidInputServiceSingleException("Product with this uuid doesn't exist", ErrorCode.ERROR));
     }
 
     private void checkUniqueTitle(ProductCreate productCreate) {
