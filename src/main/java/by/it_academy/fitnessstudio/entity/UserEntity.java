@@ -1,7 +1,5 @@
 package by.it_academy.fitnessstudio.entity;
 
-import by.it_academy.fitnessstudio.core.dto.user.UserRole;
-import by.it_academy.fitnessstudio.core.dto.user.UserStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -14,10 +12,12 @@ public class UserEntity {
     private UUID uuid;
     private String mail;
     private String fio;
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
-    @Enumerated(EnumType.STRING)
-    private UserStatus status;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "role")
+    private RoleEntity role;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "status")
+    private StatusEntity status;
     private String password;
     @Column(name = "dt_create")
     private LocalDateTime dtCreate;
@@ -29,8 +29,8 @@ public class UserEntity {
     }
 
     public UserEntity(UUID uuid, String mail,
-                      String fio, UserRole role,
-                      UserStatus status, String password,
+                      String fio, RoleEntity role,
+                      StatusEntity status, String password,
                       LocalDateTime dtCreate, LocalDateTime dtUpdate) {
         this.uuid = uuid;
         this.mail = mail;
@@ -66,19 +66,19 @@ public class UserEntity {
         this.fio = fio;
     }
 
-    public UserRole getRole() {
+    public RoleEntity getRole() {
         return role;
     }
 
-    public void setRole(UserRole role) {
+    public void setRole(RoleEntity role) {
         this.role = role;
     }
 
-    public UserStatus getStatus() {
+    public StatusEntity getStatus() {
         return status;
     }
 
-    public void setStatus(UserStatus status) {
+    public void setStatus(StatusEntity status) {
         this.status = status;
     }
 
@@ -111,8 +111,8 @@ public class UserEntity {
         private UUID uuid;
         private String mail;
         private String fio;
-        private UserRole role;
-        private UserStatus status;
+        private RoleEntity role;
+        private StatusEntity status;
         private String password;
         private LocalDateTime dtCreate;
         private LocalDateTime dtUpdate;
@@ -139,12 +139,12 @@ public class UserEntity {
             return this;
         }
 
-        public UserEntityBuilder setRole(UserRole role) {
+        public UserEntityBuilder setRole(RoleEntity role) {
             this.role = role;
             return this;
         }
 
-        public UserEntityBuilder setStatus(UserStatus status) {
+        public UserEntityBuilder setStatus(StatusEntity status) {
             this.status = status;
             return this;
         }
