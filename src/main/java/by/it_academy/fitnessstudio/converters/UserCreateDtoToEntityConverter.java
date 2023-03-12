@@ -1,6 +1,8 @@
 package by.it_academy.fitnessstudio.converters;
 
 import by.it_academy.fitnessstudio.core.dto.user.UserCreateDTO;
+import by.it_academy.fitnessstudio.entity.RoleEntity;
+import by.it_academy.fitnessstudio.entity.StatusEntity;
 import by.it_academy.fitnessstudio.entity.UserEntity;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -17,8 +19,8 @@ public class UserCreateDtoToEntityConverter implements Converter<UserCreateDTO, 
                 .setUuid(UUID.randomUUID())
                 .setMail(source.getMail())
                 .setFio(source.getFio())
-                .setRole(source.getRole())
-                .setStatus(source.getStatus())
+                .setRole(new RoleEntity(source.getRole()))
+                .setStatus(new StatusEntity(source.getStatus()))
                 .setPassword(source.getPassword())
                 .setDtCreate(dtCreate)
                 .setDtUpdate(dtCreate)

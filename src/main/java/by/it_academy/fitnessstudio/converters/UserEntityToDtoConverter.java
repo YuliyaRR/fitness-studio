@@ -16,8 +16,8 @@ public class UserEntityToDtoConverter implements Converter<UserEntity, User> {
                 .setDtUpdate(source.getDtUpdate())
                 .setMail(source.getMail())
                 .setFio(source.getFio())
-                .setRole(source.getRole())
-                .setStatus(source.getStatus())
+                .setRole(source.getRole().getRole())
+                .setStatus(source.getStatus().getStatus())
                 .build();
     }
 }
