@@ -6,6 +6,8 @@ import by.it_academy.fitnessstudio.core.dto.user.User;
 import by.it_academy.fitnessstudio.core.dto.user.UserCreateDTO;
 import by.it_academy.fitnessstudio.core.exception.ConversionTimeException;
 import by.it_academy.fitnessstudio.core.exception.InvalidInputServiceSingleException;
+import by.it_academy.fitnessstudio.entity.RoleEntity;
+import by.it_academy.fitnessstudio.entity.StatusEntity;
 import by.it_academy.fitnessstudio.entity.UserEntity;
 import by.it_academy.fitnessstudio.repositories.api.UserEntityRepository;
 import by.it_academy.fitnessstudio.service.api.IUserService;
@@ -101,8 +103,8 @@ public class UserService implements IUserService {
             }
             userEntity.setMail(mail);
             userEntity.setFio(userCreateDTO.getFio());
-            userEntity.setRole(userCreateDTO.getRole());
-            userEntity.setStatus(userCreateDTO.getStatus());
+            userEntity.setRole(new RoleEntity(userCreateDTO.getRole()));
+            userEntity.setStatus(new StatusEntity(userCreateDTO.getStatus()));
             userEntity.setPassword(passwordEncoder.encode(password));
             repository.save(userEntity);
         } else {
