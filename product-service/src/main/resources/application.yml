@@ -1,0 +1,27 @@
+debug: true
+spring:
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://db:5432/micro
+    username: micro
+    password: root
+  jackson:
+    deserialization:
+      READ_UNKNOWN_ENUM_VALUES_AS_NULL: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: final.project.jd2@gmail.com
+    password: fszwvixrggbafile
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
