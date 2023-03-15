@@ -49,10 +49,7 @@ public class SecurityConfig {
                                 "/users/login").permitAll()
                         .requestMatchers("/users/me").hasRole("USER")
                         .requestMatchers("/users/**").hasRole("ADMIN")
-                        //.requestMatchers("/**").permitAll()
                         .anyRequest().authenticated())
-                    /*    .requestMatchers("/**").permitAll()
-                )*/
                 .formLogin(withDefaults());
 
 
