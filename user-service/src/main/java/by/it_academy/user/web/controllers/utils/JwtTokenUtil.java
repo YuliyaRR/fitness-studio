@@ -1,6 +1,6 @@
 package by.it_academy.user.web.controllers.utils;
 
-import by.it_academy.user.core.dto.user.User;
+import by.it_academy.user.core.dto.user.UserToken;
 import io.jsonwebtoken.*;
 
 import java.util.Date;
@@ -14,7 +14,7 @@ public class JwtTokenUtil {
     private static final String jwtIssuer = "fitnessStudio";
 
 
-    public static String generateAccessToken(User user) {
+    public static String generateAccessToken(UserToken user) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("fio", user.getFio());
         payload.put("role", user.getRole());
@@ -28,17 +28,7 @@ public class JwtTokenUtil {
                 .compact();
     }
 
-    public static String generateAccessToken(String name) {
-        return Jwts.builder()
-                .setSubject(name)
-                .setIssuer(jwtIssuer)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7))) // 1 week
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .compact();
-    }
-
-    public static String getUsername(String token) {
+    public static String getMail(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)

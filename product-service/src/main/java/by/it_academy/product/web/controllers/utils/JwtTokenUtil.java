@@ -1,32 +1,48 @@
 package by.it_academy.product.web.controllers.utils;
 
+import by.it_academy.product.core.dto.user.UserToken;
 import io.jsonwebtoken.*;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 public class JwtTokenUtil {
 
     private static final String jwtSecret = "zgxdtyjuihlhi";
     private static final String jwtIssuer = "fitnessStudio";
-    public static String generateAccessToken(UserDetails user) {
-        return Jwts.builder()
-                .setSubject(user.getUsername())
-                .setIssuer(jwtIssuer)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7))) // 1 week
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .compact();
-    }
 
-    public static String getUsername(String token) {
+    public static String getMail(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
                 .getBody();
 
         return claims.getSubject();
+    }
+
+    public static String getRole(String token) {
+        return  (String) Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody().get("role");
+    }
+
+    public static String getFio(String token) {
+        return (String) Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody().get("fio");
+    }
+
+    public static UserToken getUserToken(String token) {
+        Claims body = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
+        String fio = (String) body.get("fio");
+        String role = (String) body.get("role");
+        String mail = body.getSubject();
+
+        return new UserToken(mail, role, fio);
     }
 
     public static Date getExpirationDate(String token) {
