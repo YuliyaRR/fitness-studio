@@ -4,6 +4,7 @@ import by.it_academy.user.core.dto.VerificationCode;
 import by.it_academy.user.core.dto.user.User;
 import by.it_academy.user.core.dto.user.UserLogin;
 import by.it_academy.user.core.dto.user.UserRegistration;
+import by.it_academy.user.core.dto.user.UserToken;
 import by.it_academy.user.validator.api.ValidEmail;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +15,7 @@ public interface IAuthenticationService {
 
     void verification(@NotNull @Valid VerificationCode verificationCode);
 
-    User logIn(@NotNull @Valid UserLogin userLogin);
+    UserToken logIn(@NotNull @Valid UserLogin userLogin);
 
     User get(@ValidEmail String mail);
 }

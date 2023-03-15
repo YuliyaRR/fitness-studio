@@ -69,7 +69,7 @@ public class AuthenticationService implements IAuthenticationService {
     }
 
     @Override
-    public User logIn(@NotNull @Valid UserLogin userLogin) {
+    public UserToken logIn(@NotNull @Valid UserLogin userLogin) {
         UserEntity userEntity = repository.findByMail(userLogin.getMail())
                 .orElseThrow(() -> new InvalidLoginException("User with this email doesn't exist", ErrorCode.ERROR));
 
@@ -79,11 +79,11 @@ public class AuthenticationService implements IAuthenticationService {
             throw new InvalidLoginException("Wrong password entered", ErrorCode.ERROR);
         }
 
-        if(!conversionService.canConvert(UserEntity.class, User.class)) {
+        if(!conversionService.canConvert(UserEntity.class, UserToken.class)) {
             throw new ConversionTimeException("Unable to convert", ErrorCode.ERROR);
         }
 
-        return conversionService.convert(userEntity, User.class);
+        return conversionService.convert(userEntity, UserToken.class);
     }
 
     @Override
