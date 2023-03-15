@@ -4,6 +4,7 @@ import by.it_academy.user.core.dto.VerificationCode;
 import by.it_academy.user.core.dto.user.User;
 import by.it_academy.user.core.dto.user.UserLogin;
 import by.it_academy.user.core.dto.user.UserRegistration;
+import by.it_academy.user.core.dto.user.UserToken;
 import by.it_academy.user.service.UserHolder;
 import by.it_academy.user.service.api.IAuthenticationService;
 import by.it_academy.user.validator.api.ValidEmail;
@@ -42,9 +43,9 @@ public class AuthenticationController {
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public String login(@Valid @RequestBody UserLogin userLogin){
 
-        User user = authenticationService.logIn(userLogin);
+        UserToken userToken = authenticationService.logIn(userLogin);
 
-        return JwtTokenUtil.generateAccessToken(user);
+        return JwtTokenUtil.generateAccessToken(userToken);
     }
 
     @RequestMapping(path = "/me", method = RequestMethod.GET)
