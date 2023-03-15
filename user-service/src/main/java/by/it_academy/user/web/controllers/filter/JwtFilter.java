@@ -1,6 +1,7 @@
 package by.it_academy.user.web.controllers.filter;
 
 import by.it_academy.user.core.dto.user.User;
+import by.it_academy.user.core.dto.user.UserToken;
 import by.it_academy.user.service.api.IAuthenticationService;
 import by.it_academy.user.web.controllers.utils.JwtTokenUtil;
 import jakarta.servlet.FilterChain;
@@ -9,15 +10,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.apache.logging.log4j.util.Strings.isEmpty;
 
@@ -49,14 +47,14 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        User user = authenticationService.get(JwtTokenUtil.getUsername(token));
-        List<SimpleGrantedAuthority> list = new ArrayList<>();
-        list.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        User user = authenticationService.get(JwtTokenUtil.getMail(token));
+        UserToken userToken = new UserToken(user.getMail(), user.getRole().name(), user.getFio());
+
 
         UsernamePasswordAuthenticationToken
                 authentication = new UsernamePasswordAuthenticationToken(
-                user, null,
-                list);
+                userToken, null,
+                userToken.getAuthorities());
 
         authentication.setDetails(
                 new WebAuthenticationDetailsSource().buildDetails(request)
