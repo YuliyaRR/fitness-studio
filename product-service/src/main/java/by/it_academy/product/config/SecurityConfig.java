@@ -11,19 +11,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
-    private final JwtFilter filter;
-
-    public SecurityConfig(JwtFilter filter) {
-        this.filter = filter;
-    }
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter filter) throws Exception {
         http = http.cors().and().csrf().disable();
 
         http = http
@@ -34,16 +26,21 @@ public class SecurityConfig {
         http = http
                 .exceptionHandling()
                 .authenticationEntryPoint(
-                        (request, response, ex) -> {
+                        (request, response, ex) ->
                             response.sendError(
                                     HttpServletResponse.SC_UNAUTHORIZED,
                                     ex.getMessage()
-                            );
-                        }
+                            )
+                )
+                .accessDeniedHandler(
+                        (request, response, ex) ->
+                                response.setStatus(
+                                        HttpServletResponse.SC_FORBIDDEN
+                                )
                 )
                 .and();
         http
-                .authorizeHttpRequests((authz) -> authz
+                .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/product/{uuid}/dt_update/{dt_update}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,"/product").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/product").permitAll()
@@ -51,9 +48,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/recipe").permitAll()
                         .requestMatchers("/recipe/{uuid}/dt_update/{dt_update}").hasRole("ADMIN")
                         .anyRequest().authenticated()
-                )
-                .formLogin(withDefaults());
-
+                );
 
         http.addFilterBefore(
                 filter,

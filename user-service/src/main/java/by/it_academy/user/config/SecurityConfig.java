@@ -10,19 +10,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
-@EnableMethodSecurity(securedEnabled = true)
+@EnableMethodSecurity
 public class SecurityConfig {
-    private final JwtFilter filter;
-
-    public SecurityConfig(JwtFilter filter) {
-        this.filter = filter;
-    }
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter filter) throws Exception {
         http = http.cors().and().csrf().disable();
 
         http = http
@@ -33,29 +25,33 @@ public class SecurityConfig {
         http = http
                 .exceptionHandling()
                 .authenticationEntryPoint(
-                        (request, response, ex) -> {
-                            response.sendError(
-                                    HttpServletResponse.SC_UNAUTHORIZED,
-                                    ex.getMessage()
-                            );
-                        }
+                        (request, response, ex) ->
+                                response.setStatus(
+                                        HttpServletResponse.SC_UNAUTHORIZED
+                                )
                 )
-                .and();
-        http
-                .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers(
-                                "/users/registration",
-                                "/users/verification",
-                                "/users/login").permitAll()
-                        .requestMatchers("/users/me").hasRole("USER")
-                        .requestMatchers("/users/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
-                .formLogin(withDefaults());
+                .accessDeniedHandler(
+                        (request, response, ex) ->
+                                response.setStatus(
+                                        HttpServletResponse.SC_FORBIDDEN
+                                )
+                )
 
+                .and();
+
+        http.authorizeHttpRequests(requests -> requests
+                .requestMatchers("/users/registration").permitAll()
+                .requestMatchers("/users/verification").permitAll()
+                .requestMatchers("/users/login").permitAll()
+                .requestMatchers("/users/me").hasRole("USER")
+                .requestMatchers("/users/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+        );
 
         http.addFilterBefore(
                 filter,
-                UsernamePasswordAuthenticationFilter.class);
+                UsernamePasswordAuthenticationFilter.class
+        );
 
         return http.build();
     }
