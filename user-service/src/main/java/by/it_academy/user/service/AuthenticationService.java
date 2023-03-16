@@ -9,36 +9,38 @@ import by.it_academy.user.core.exception.InvalidLoginException;
 import by.it_academy.user.entity.UserEntity;
 import by.it_academy.user.repositories.api.AuthEntityRepository;
 import by.it_academy.user.service.api.IAuthenticationService;
-import by.it_academy.user.service.api.IMailService;
 import by.it_academy.user.service.api.IUserService;
 import by.it_academy.user.service.api.IVerificationService;
 import by.it_academy.user.validator.api.ValidEmail;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.json.simple.JSONObject;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.UUID;
 @Validated
 public class AuthenticationService implements IAuthenticationService {
     private final AuthEntityRepository repository;
-    private final IMailService mailService;
     private final IUserService userService;
     private final IVerificationService verificationService;
     private final ConversionService conversionService;
     private final PasswordEncoder passwordEncoder;
 
     public AuthenticationService(AuthEntityRepository repository,
-                                 IMailService mailService,
                                  IUserService userService,
                                  IVerificationService verificationService,
                                  ConversionService conversionService,
                                  PasswordEncoder passwordEncoder) {
         this.repository = repository;
-        this.mailService = mailService;
         this.userService = userService;
         this.verificationService = verificationService;
         this.conversionService = conversionService;
@@ -55,10 +57,11 @@ public class AuthenticationService implements IAuthenticationService {
         userService.save(convert);
 
         UUID code = UUID.randomUUID();
-        verificationService.save(new VerificationCode(userRegistration.getMail(), code));
+        VerificationCode verificationCode = new VerificationCode(userRegistration.getMail(), code);
+        verificationService.save(verificationCode);
 
-        EmailDetails details = createMailForVerification(new VerificationCode(userRegistration.getMail(), code));
-        mailService.sendSimpleEmail(details);// при многопоточке изменить на сохранить, а потом выборка из бд отдельным потоком
+        EmailDetails details = createMailForVerification(verificationCode);
+        sendMailRequest(details);
     }
 
     @Override
@@ -104,5 +107,25 @@ public class AuthenticationService implements IAuthenticationService {
         details.setMsgBody(verificationCode.getCode().toString());
         details.setSubject("Verification code");
         return details;
+    }
+
+    private void sendMailRequest (EmailDetails emailDetails) {
+        HttpClient client = HttpClient.newHttpClient();
+        JSONObject jsonMessage = new JSONObject();
+        jsonMessage.put("recipient", emailDetails.getRecipient());
+        jsonMessage.put("msgBody", emailDetails.getMsgBody());
+        jsonMessage.put("subject", emailDetails.getSubject());
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://mail-service:8080/mails"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonMessage.toJSONString()))
+                .build();
+
+        try {
+            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
