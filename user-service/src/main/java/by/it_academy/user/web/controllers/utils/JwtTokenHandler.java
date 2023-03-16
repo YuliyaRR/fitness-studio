@@ -1,54 +1,57 @@
 package by.it_academy.user.web.controllers.utils;
 
+import by.it_academy.user.config.JWTProperty;
 import by.it_academy.user.core.dto.user.UserToken;
 import io.jsonwebtoken.*;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+@Component
+public class JwtTokenHandler {
+    private final JWTProperty property;
 
-public class JwtTokenUtil {
+    public JwtTokenHandler(JWTProperty property) {
+        this.property = property;
+    }
 
-    private static final String jwtSecret = "zgxdtyjuihlhi";
-    private static final String jwtIssuer = "fitnessStudio";
-
-
-    public static String generateAccessToken(UserToken user) {
+    public String generateAccessToken(UserToken user) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("fio", user.getFio());
         payload.put("role", user.getRole());
         return Jwts.builder()
                 .setSubject(user.getMail())
                 .addClaims(payload)
-                .setIssuer(jwtIssuer)
+                .setIssuer(property.getIssuer())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7))) // 1 week
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .signWith(SignatureAlgorithm.HS512, property.getSecret())
                 .compact();
     }
 
-    public static String getMail(String token) {
+    public String getMail(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(jwtSecret)
+                .setSigningKey(property.getSecret())
                 .parseClaimsJws(token)
                 .getBody();
 
         return claims.getSubject();
     }
 
-    public static Date getExpirationDate(String token) {
+    public Date getExpirationDate(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(jwtSecret)
+                .setSigningKey(property.getSecret())
                 .parseClaimsJws(token)
                 .getBody();
 
         return claims.getExpiration();
     }
 
-    public static boolean validate(String token) {
+    public boolean validate(String token) {
         try {
-            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
+            Jwts.parser().setSigningKey(property.getSecret()).parseClaimsJws(token);
             return true;
         } catch (SignatureException ex) {
             //logger.error("Invalid JWT signature - {}", ex.getMessage());
