@@ -3,7 +3,7 @@ package by.it_academy.user.web.controllers.filter;
 import by.it_academy.user.core.dto.user.User;
 import by.it_academy.user.core.dto.user.UserToken;
 import by.it_academy.user.service.api.IAuthenticationService;
-import by.it_academy.user.web.controllers.utils.JwtTokenUtil;
+import by.it_academy.user.web.controllers.utils.JwtTokenHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,9 +23,11 @@ import static org.apache.logging.log4j.util.Strings.isEmpty;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final IAuthenticationService authenticationService;
+    private final JwtTokenHandler jwtHandler;
 
-    public JwtFilter(IAuthenticationService authenticationService) {
+    public JwtFilter(IAuthenticationService authenticationService, JwtTokenHandler jwtHandler) {
         this.authenticationService = authenticationService;
+        this.jwtHandler = jwtHandler;
     }
 
     @Override
@@ -40,14 +42,13 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Get jwt token and validate
         final String token = header.split(" ")[1].trim();
-        if (!JwtTokenUtil.validate(token)) {
+        if (!jwtHandler.validate(token)) {
             chain.doFilter(request, response);
             return;
         }
 
-        User user = authenticationService.get(JwtTokenUtil.getMail(token));
+        User user = authenticationService.get(jwtHandler.getMail(token));
         UserToken userToken = new UserToken(user.getMail(), user.getRole().name(), user.getFio());
 
 
