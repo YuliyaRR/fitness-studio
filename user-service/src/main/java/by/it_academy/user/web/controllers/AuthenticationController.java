@@ -8,7 +8,7 @@ import by.it_academy.user.core.dto.user.UserToken;
 import by.it_academy.user.service.UserHolder;
 import by.it_academy.user.service.api.IAuthenticationService;
 import by.it_academy.user.validator.api.ValidEmail;
-import by.it_academy.user.web.controllers.utils.JwtTokenUtil;
+import by.it_academy.user.web.controllers.utils.JwtTokenHandler;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -22,10 +22,14 @@ import java.util.UUID;
 public class AuthenticationController {
     private final IAuthenticationService authenticationService;
     private final UserHolder userHolder;
+    private final JwtTokenHandler jwtTokenHandler;
 
-    public AuthenticationController(IAuthenticationService authenticationService, UserHolder userHolder) {
+    public AuthenticationController(IAuthenticationService authenticationService,
+                                    UserHolder userHolder,
+                                    JwtTokenHandler jwtTokenHandler) {
         this.authenticationService = authenticationService;
         this.userHolder = userHolder;
+        this.jwtTokenHandler = jwtTokenHandler;
     }
 
     @RequestMapping(path = "/registration", method = RequestMethod.POST)
@@ -45,7 +49,7 @@ public class AuthenticationController {
 
         UserToken userToken = authenticationService.logIn(userLogin);
 
-        return JwtTokenUtil.generateAccessToken(userToken);
+        return jwtTokenHandler.generateAccessToken(userToken);
     }
 
     @RequestMapping(path = "/me", method = RequestMethod.GET)
