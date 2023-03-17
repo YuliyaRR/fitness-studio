@@ -1,7 +1,7 @@
 package by.it_academy.product.web.controllers.filter;
 
 import by.it_academy.product.core.dto.user.UserToken;
-import by.it_academy.product.web.controllers.utils.JwtTokenUtil;
+import by.it_academy.product.web.controllers.utils.JwtTokenHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +19,11 @@ import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+    private final JwtTokenHandler jwtHandler;
+
+    public JwtFilter(JwtTokenHandler jwtHandler) {
+        this.jwtHandler = jwtHandler;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -32,14 +37,13 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Get jwt token and validate
         final String token = header.split(" ")[1].trim();
-        if (!JwtTokenUtil.validate(token)) {
+        if (!jwtHandler.validate(token)) {
             chain.doFilter(request, response);
             return;
         }
 
-        UserToken userToken = JwtTokenUtil.getUserToken(token);
+        UserToken userToken = jwtHandler.getUserToken(token);
 
         UsernamePasswordAuthenticationToken
                 authentication = new UsernamePasswordAuthenticationToken(
