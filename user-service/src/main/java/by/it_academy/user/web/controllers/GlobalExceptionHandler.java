@@ -4,39 +4,27 @@ import by.it_academy.user.core.dto.error.ErrorCode;
 import by.it_academy.user.core.dto.error.LocalError;
 import by.it_academy.user.core.dto.error.ResponseMultiError;
 import by.it_academy.user.core.dto.error.ResponseSingleError;
-import by.it_academy.user.core.exception.InvalidInputServiceMultiException;
-import by.it_academy.user.core.exception.InvalidInputServiceSingleException;
-import by.it_academy.user.core.exception.InvalidLoginException;
-import by.it_academy.user.core.exception.VerificationException;
+import by.it_academy.user.core.exception.*;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Arrays;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     public GlobalExceptionHandler() {
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<ResponseMultiError> handle(InvalidInputServiceMultiException e) {
-        Throwable[] suppressed = e.getSuppressed();
-        List<LocalError> localErrors = Arrays.stream(suppressed)
-                .map(thr -> new LocalError(thr.getLocalizedMessage(), thr.getMessage()))
-                .toList();
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ResponseMultiError(e.getErrorCode(), localErrors));
-
     }
 
     @ExceptionHandler
@@ -50,15 +38,20 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<List<ResponseSingleError>> handle(ConstraintViolationException e) {
-        List<ResponseSingleError> localErrors = e.getConstraintViolations().stream()
-                .map(ex -> new ResponseSingleError(ErrorCode.ERROR, ex.getMessage()))
-                .collect(Collectors.toList());
+    public ResponseEntity<ResponseMultiError> handle(ConstraintViolationException e) {
+        List<LocalError> localErrors = new ArrayList<>();
+        for (ConstraintViolation<?> constraintViolation : e.getConstraintViolations()) {
+            String name = null;
+            for (Path.Node node : constraintViolation.getPropertyPath()) {
+                name = node.getName();
+            }
+            localErrors.add(new LocalError(name, constraintViolation.getMessage()));
+        }
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(localErrors);
-
+                .body(new ResponseMultiError(ErrorCode.STRUCTURED_ERROR, localErrors));
     }
+
     @ExceptionHandler
     public ResponseEntity<List<ResponseSingleError>> handle(IllegalArgumentException e) {
         return ResponseEntity
@@ -88,13 +81,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<List<ResponseSingleError>> handle(AccessDeniedException e) {
+    public ResponseEntity<ResponseMultiError> handle(SendMailMultiException e) {
+        String message = e.getMessage();
+        Gson gson = new Gson();
+        ResponseMultiError responseMultiError = gson.fromJson(message, ResponseMultiError.class);
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(List.of(new ResponseSingleError(ErrorCode.ERROR, e.getMessage())));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(responseMultiError);
     }
 
     @ExceptionHandler
+    public ResponseEntity<List<ResponseSingleError>> handle(SendMailSingleException e) {
+        String message = e.getMessage();
+        Gson gson = new Gson();
+        Type collectionType = new TypeToken<List<ResponseSingleError>>(){}.getType();
+        List<ResponseSingleError> responseSingleError = gson.fromJson(message, collectionType);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(responseSingleError);
+    }
+
+    @ExceptionHandler(value = {ConversionTimeException.class, Exception.class})
     public ResponseEntity<List<ResponseSingleError>> handle(Exception e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
