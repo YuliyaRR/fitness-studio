@@ -4,20 +4,22 @@ import by.it_academy.product.core.dto.error.ErrorCode;
 import by.it_academy.product.core.dto.error.LocalError;
 import by.it_academy.product.core.dto.error.ResponseMultiError;
 import by.it_academy.product.core.dto.error.ResponseSingleError;
+import by.it_academy.product.core.exception.ConversionTimeException;
 import by.it_academy.product.core.exception.InvalidInputServiceMultiException;
 import by.it_academy.product.core.exception.InvalidInputServiceSingleException;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -34,7 +36,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ResponseMultiError(e.getErrorCode(), localErrors));
-
     }
 
     @ExceptionHandler
@@ -44,19 +45,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ResponseMultiError(ErrorCode.STRUCTURED_ERROR, localErrors));
-
     }
 
     @ExceptionHandler
-    public ResponseEntity<List<ResponseSingleError>> handle(ConstraintViolationException e) {
-        List<ResponseSingleError> localErrors = e.getConstraintViolations().stream()
-                .map(ex -> new ResponseSingleError(ErrorCode.ERROR, ex.getMessage()))
-                .collect(Collectors.toList());
+    public ResponseEntity<ResponseMultiError> handle(ConstraintViolationException e) {
+        List<LocalError> localErrors = new ArrayList<>();
+        for (ConstraintViolation<?> constraintViolation : e.getConstraintViolations()) {
+            String name = null;
+            for (Path.Node node : constraintViolation.getPropertyPath()) {
+                name = node.getName();
+            }
+            localErrors.add(new LocalError(name, constraintViolation.getMessage()));
+        }
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(localErrors);
-
+                .body(new ResponseMultiError(ErrorCode.STRUCTURED_ERROR, localErrors));
     }
+
     @ExceptionHandler
     public ResponseEntity<List<ResponseSingleError>> handle(IllegalArgumentException e) {
         return ResponseEntity
@@ -71,14 +76,7 @@ public class GlobalExceptionHandler {
                 .body(List.of(new ResponseSingleError(e.getErrorCode(), e.getMessage())));
     }
 
-    @ExceptionHandler
-    public ResponseEntity<List<ResponseSingleError>> handle(AccessDeniedException e) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(List.of(new ResponseSingleError(ErrorCode.ERROR, e.getMessage())));
-    }
-
-    @ExceptionHandler
+    @ExceptionHandler(value = {ConversionTimeException.class, Exception.class})
     public ResponseEntity<List<ResponseSingleError>> handle(Exception e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
