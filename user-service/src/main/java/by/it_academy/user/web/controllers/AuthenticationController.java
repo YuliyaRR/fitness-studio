@@ -10,13 +10,11 @@ import by.it_academy.user.service.api.IAuthenticationService;
 import by.it_academy.user.validator.api.ValidEmail;
 import by.it_academy.user.web.controllers.utils.JwtTokenHandler;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
-@Validated
+
 @RestController
 @RequestMapping(path = "/users")
 public class AuthenticationController {
@@ -39,16 +37,14 @@ public class AuthenticationController {
     }
 
     @RequestMapping(path = "/verification", method = RequestMethod.GET)
-    public void verification(@RequestParam(name = "code") @NotNull UUID code,
-                             @RequestParam(name = "mail") @NotNull @ValidEmail String mail){
+    public void verification(@RequestParam(name = "code") UUID code,
+                             @RequestParam(name = "mail") @ValidEmail String mail){
         authenticationService.verification(new VerificationCode(mail, code));
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public String login(@Valid @RequestBody UserLogin userLogin){
-
         UserToken userToken = authenticationService.logIn(userLogin);
-
         return jwtTokenHandler.generateAccessToken(userToken);
     }
 
