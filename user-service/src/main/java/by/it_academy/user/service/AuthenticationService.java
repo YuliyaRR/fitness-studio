@@ -6,15 +6,17 @@ import by.it_academy.user.core.dto.mail.EmailDetails;
 import by.it_academy.user.core.dto.user.*;
 import by.it_academy.user.core.exception.ConversionTimeException;
 import by.it_academy.user.core.exception.InvalidLoginException;
+import by.it_academy.user.core.exception.SendMailMultiException;
+import by.it_academy.user.core.exception.SendMailSingleException;
 import by.it_academy.user.entity.UserEntity;
 import by.it_academy.user.repositories.api.AuthEntityRepository;
 import by.it_academy.user.service.api.IAuthenticationService;
 import by.it_academy.user.service.api.IUserService;
 import by.it_academy.user.service.api.IVerificationService;
 import by.it_academy.user.validator.api.ValidEmail;
+import com.google.gson.Gson;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.json.simple.JSONObject;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +50,7 @@ public class AuthenticationService implements IAuthenticationService {
     }
 
     @Override
+    @Transactional
     public void registration(@NotNull @Valid UserRegistration userRegistration) {
         if(!conversionService.canConvert(UserRegistration.class, UserCreateDTO.class)) {
             throw new ConversionTimeException("Unable to convert", ErrorCode.ERROR);
@@ -111,19 +114,26 @@ public class AuthenticationService implements IAuthenticationService {
 
     private void sendMailRequest (EmailDetails emailDetails) {
         HttpClient client = HttpClient.newHttpClient();
-        JSONObject jsonMessage = new JSONObject();
-        jsonMessage.put("recipient", emailDetails.getRecipient());
-        jsonMessage.put("msgBody", emailDetails.getMsgBody());
-        jsonMessage.put("subject", emailDetails.getSubject());
+        Gson gson = new Gson();
+        String json = gson.toJson(emailDetails);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://mail-service:8080/mails"))
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonMessage.toJSONString()))
+                .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
 
         try {
             HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
+            int statusCode = send.statusCode();
+            String body = send.body();
+
+            if(statusCode >= 400 && statusCode < 500) {
+                throw new SendMailMultiException(body);
+            } else if (statusCode >= 500) {
+                throw new SendMailSingleException(body);
+            }
+
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
