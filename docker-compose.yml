@@ -1,14 +1,46 @@
 version: '3.9'
 services:
-  db:
-    build: postgresql
-    image: fitness_postgresql:1.0.0
+
+  db_user:
+    build: postgresql-user
+    image: postgresql_user:1.0.0
     restart: always
     environment:
-      POSTGRES_USER: micro
+      POSTGRES_USER: fitness
       POSTGRES_PASSWORD: root
     networks:
       - fitness_ntwrk
+      
+  db_product:
+    build: postgresql-product
+    image: postgresql_product:1.0.0
+    restart: always
+    environment:
+      POSTGRES_USER: fitness
+      POSTGRES_PASSWORD: root
+    networks:
+      - fitness_ntwrk
+      
+  db_mail:
+    build: postgresql-mail
+    image: postgresql_mail:1.0.0
+    restart: always
+    environment:
+      POSTGRES_USER: fitness
+      POSTGRES_PASSWORD: root
+    networks:
+      - fitness_ntwrk
+      
+  db_audit:
+    build: postgresql-audit
+    image: postgresql_audit:1.0.0
+    restart: always
+    environment:
+      POSTGRES_USER: fitness
+      POSTGRES_PASSWORD: root
+    networks:
+      - fitness_ntwrk
+      
   pgadmin:
     build: pgadmin
     image: fitness_pgadmin:1.0.0
@@ -20,6 +52,7 @@ services:
       - "82:80"
     networks:
       - fitness_ntwrk
+      
   swagger-ui:
     build: swagger-ui
     image: fitness_swagger-ui:1.0.0
@@ -27,21 +60,31 @@ services:
       - "81:8080"
     networks:
       - fitness_ntwrk
+      
   user-service:
     build: user-service
     image: fitness_user-service:1.0.0
     networks:
       - fitness_ntwrk
+      
   product-service:
     build: product-service
     image: fitness_product-service:1.0.0
     networks:
       - fitness_ntwrk
+      
   mail-service:
     build: mail-service
     image: fitness_mail-service:1.0.0
     networks:
       - fitness_ntwrk
+      
+  audit-service:
+    build: audit-service
+    image: fitness_audit-service:1.0.0
+    networks:
+      - fitness_ntwrk
+      
   proxy:
     build: proxy
     image: fitness_proxy:1.0.0
@@ -49,6 +92,7 @@ services:
       - "80:80"
     networks:
       - fitness_ntwrk
+      
 networks:
     fitness_ntwrk:
       name: fitness_ntwrk
