@@ -10,6 +10,6 @@ public class UserEntityToUserTokenConverter implements Converter<UserEntity, Use
 
     @Override
     public UserToken convert(UserEntity source) {
-        return new UserToken(source.getMail(), source.getRole().getRole().name(), source.getFio());
+        return new UserToken(source.getMail(), source.getRole().getRole().name(), source.getFio(), source.getUuid());
     }
 }

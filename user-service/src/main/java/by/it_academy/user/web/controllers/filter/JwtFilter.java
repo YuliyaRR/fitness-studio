@@ -49,7 +49,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         User user = authenticationService.get(jwtHandler.getMail(token));
-        UserToken userToken = new UserToken(user.getMail(), user.getRole().name(), user.getFio());
+        UserToken userToken = new UserToken(user.getMail(), user.getRole().name(), user.getFio(), user.getUuid());
 
 
         UsernamePasswordAuthenticationToken

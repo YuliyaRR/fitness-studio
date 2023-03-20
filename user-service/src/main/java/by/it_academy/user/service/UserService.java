@@ -1,5 +1,8 @@
 package by.it_academy.user.service;
 
+import by.it_academy.user.audit.AspectAudit;
+import by.it_academy.user.audit.AuditAction;
+import by.it_academy.user.audit.EssenceType;
 import by.it_academy.user.core.dto.OnePage;
 import by.it_academy.user.core.dto.error.ErrorCode;
 import by.it_academy.user.core.dto.user.User;
@@ -37,7 +40,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void save(@NotNull @Valid UserCreateDTO userCreateDTO) {
+    @AspectAudit(action = AuditAction.CREATE, type = EssenceType.USER)
+    public UUID save(@NotNull @Valid UserCreateDTO userCreateDTO) {
         checkUniqueMail(userCreateDTO);
 
         if(!conversionService.canConvert(UserCreateDTO.class, UserEntity.class)) {
@@ -50,8 +54,8 @@ public class UserService implements IUserService {
         password = passwordEncoder.encode(password);
         userEntity.setPassword(password);
 
-        repository.save(userEntity);
-
+        UserEntity save = repository.save(userEntity);
+        return save.getUuid();
     }
 
     @Override
@@ -89,7 +93,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void update(@NotNull UUID uuid, @NotNull LocalDateTime dtUpdate, @NotNull @Valid UserCreateDTO userCreateDTO) {
+    @AspectAudit(action = AuditAction.UPDATED, type = EssenceType.USER)
+    public UUID update(@NotNull UUID uuid, @NotNull LocalDateTime dtUpdate, @NotNull @Valid UserCreateDTO userCreateDTO) {
 
         String mail = userCreateDTO.getMail();
         String password = userCreateDTO.getPassword();
@@ -110,6 +115,7 @@ public class UserService implements IUserService {
         } else {
             throw new InvalidInputServiceSingleException("User with this version was not found in the database", ErrorCode.ERROR);
         }
+        return userEntity.getUuid();
     }
 
     private void checkUniqueMail(UserCreateDTO userCreateDTO) {

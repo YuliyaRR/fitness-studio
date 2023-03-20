@@ -11,13 +11,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public interface IUserService {
-    void save(@NotNull @Valid UserCreateDTO userCreateDTO);
+    UUID save(@NotNull @Valid UserCreateDTO userCreateDTO);
 
     OnePage<User> getUsersPage(@NotNull Pageable pageable);
 
     User getUserInfo(@NotNull UUID uuid);
 
-    void update(@NotNull UUID uuid, @NotNull LocalDateTime dtUpdate, @NotNull @Valid UserCreateDTO userCreateDTO);
+    UUID update(@NotNull UUID uuid, @NotNull LocalDateTime dtUpdate, @NotNull @Valid UserCreateDTO userCreateDTO);
 
 
 }

@@ -21,6 +21,7 @@ public class JwtTokenHandler {
         Map<String, Object> payload = new HashMap<>();
         payload.put("fio", user.getFio());
         payload.put("role", user.getRole());
+        payload.put("uuid", user.getUuid().toString());
         return Jwts.builder()
                 .setSubject(user.getMail())
                 .addClaims(payload)

@@ -6,16 +6,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
 public class UserToken implements UserDetails {
     private String mail;
     private String role;
-     private String fio;
+    private String fio;
+    private UUID uuid;
 
-    public UserToken(String mail, String role, String fio) {
+    public UserToken(String mail, String role, String fio, UUID uuid) {
         this.mail = mail;
         this.role = role;
         this.fio = fio;
+        this.uuid = uuid;
     }
 
     public String getMail() {
@@ -40,6 +43,14 @@ public class UserToken implements UserDetails {
 
     public void setFio(String fio) {
         this.fio = fio;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     @Override

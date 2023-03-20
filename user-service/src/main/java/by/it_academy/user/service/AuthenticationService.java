@@ -17,6 +17,7 @@ import by.it_academy.user.validator.api.ValidEmail;
 import com.google.gson.Gson;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 @Validated
 public class AuthenticationService implements IAuthenticationService {
+    @Value("${mail.url}")
+    private String MAIL_URL;
     private final AuthEntityRepository repository;
     private final IUserService userService;
     private final IVerificationService verificationService;
@@ -118,7 +121,7 @@ public class AuthenticationService implements IAuthenticationService {
         String json = gson.toJson(emailDetails);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://mail-service:8080/mails"))
+                .uri(URI.create(MAIL_URL))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
