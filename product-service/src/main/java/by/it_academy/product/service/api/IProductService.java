@@ -14,11 +14,11 @@ import java.util.UUID;
 
 public interface IProductService {
 
-    void create(@NotNull @Valid ProductCreate productCreate);
+    UUID create(@NotNull @Valid ProductCreate productCreate);
 
     OnePage<Product> getProductsPage(@NotNull Pageable pageable);
 
-    void updateProduct(@NotNull UUID uuid, @NotNull @Past LocalDateTime dtUpdate, @NotNull @Valid ProductCreate productCreate);
+    UUID updateProduct(@NotNull UUID uuid, @NotNull @Past LocalDateTime dtUpdate, @NotNull @Valid ProductCreate productCreate);
 
     ProductEntity getEntity(@NotNull UUID uuid);
 }

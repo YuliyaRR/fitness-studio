@@ -1,5 +1,8 @@
 package by.it_academy.product.service;
 
+import by.it_academy.product.audit.AspectAudit;
+import by.it_academy.product.audit.AuditAction;
+import by.it_academy.product.audit.EssenceType;
 import by.it_academy.product.core.dto.error.ErrorCode;
 import by.it_academy.product.core.dto.ingredient.Ingredient;
 import by.it_academy.product.core.dto.ingredient.IngredientCalculated;
@@ -46,7 +49,8 @@ public class RecipeService implements IRecipeService {
     }
 
     @Override
-    public void save(@NotNull RecipeCreate recipeCreate) {
+    @AspectAudit(action = AuditAction.CREATE_RECIPE, type = EssenceType.RECIPE)
+    public UUID save(@NotNull RecipeCreate recipeCreate) {
         validator.validate(recipeCreate);
 
         checkUniqueTitle(recipeCreate);
@@ -69,6 +73,7 @@ public class RecipeService implements IRecipeService {
                 .setTitle(title)
                 .setComposition(comp).build();
         repository.save(recipeEntity);
+        return recipeEntity.getUuid();
     }
 
     @Override
@@ -90,7 +95,8 @@ public class RecipeService implements IRecipeService {
     }
 
     @Override
-    public void update(@NotNull UUID uuid, @NotNull @Past LocalDateTime dtUpdate, @NotNull RecipeCreate recipeCreate) {
+    @AspectAudit(action = AuditAction.UPDATED_RECIPE, type = EssenceType.RECIPE)
+    public UUID update(@NotNull UUID uuid, @NotNull @Past LocalDateTime dtUpdate, @NotNull RecipeCreate recipeCreate) {
         validator.validate(recipeCreate);
 
         String recipeCreateTitle = recipeCreate.getTitle();
@@ -117,6 +123,7 @@ public class RecipeService implements IRecipeService {
         } else {
             throw new InvalidInputServiceSingleException("Recipe with this version doesn't exist", ErrorCode.ERROR);
         }
+        return entity.getUuid();
     }
 
     private void checkUniqueTitle(@NotNull RecipeCreate recipeCreate) {

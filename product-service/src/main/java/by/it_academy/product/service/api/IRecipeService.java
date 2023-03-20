@@ -12,9 +12,9 @@ import java.util.UUID;
 
 public interface IRecipeService {
 
-    void save(@NotNull RecipeCreate recipeCreate);
+    UUID save(@NotNull RecipeCreate recipeCreate);
 
     OnePage<Recipe> getRecipesPage(@NotNull Pageable pageable);
 
-    void update(@NotNull UUID uuid, @NotNull @Past LocalDateTime dtUpdate, @NotNull RecipeCreate recipeCreate);
+    UUID update(@NotNull UUID uuid, @NotNull @Past LocalDateTime dtUpdate, @NotNull RecipeCreate recipeCreate);
 }

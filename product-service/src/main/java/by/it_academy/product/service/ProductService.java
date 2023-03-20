@@ -1,5 +1,8 @@
 package by.it_academy.product.service;
 
+import by.it_academy.product.audit.AspectAudit;
+import by.it_academy.product.audit.AuditAction;
+import by.it_academy.product.audit.EssenceType;
 import by.it_academy.product.core.dto.OnePage;
 import by.it_academy.product.core.dto.error.ErrorCode;
 import by.it_academy.product.core.dto.product.Product;
@@ -32,7 +35,8 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void create(@NotNull @Valid ProductCreate productCreate) {
+    @AspectAudit(action = AuditAction.CREATE_PRODUCT, type = EssenceType.PRODUCT)
+    public UUID create(@NotNull @Valid ProductCreate productCreate) {
         checkUniqueTitle(productCreate);
 
         if(!conversionService.canConvert(ProductCreate.class, ProductEntity.class)) {
@@ -41,6 +45,7 @@ public class ProductService implements IProductService {
 
         ProductEntity productEntity = conversionService.convert(productCreate, ProductEntity.class);
         repository.save(productEntity);
+        return productEntity.getUuid();
     }
 
     @Override
@@ -65,7 +70,8 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void updateProduct(@NotNull UUID uuid, @NotNull @Past LocalDateTime dtUpdate, @NotNull @Valid ProductCreate productCreate) {
+    @AspectAudit(action = AuditAction.UPDATED_PRODUCT, type = EssenceType.PRODUCT)
+    public UUID updateProduct(@NotNull UUID uuid, @NotNull @Past LocalDateTime dtUpdate, @NotNull @Valid ProductCreate productCreate) {
         String productCreateTitle = productCreate.getTitle();
 
         ProductEntity productEntity = repository.findById(uuid)
@@ -86,6 +92,7 @@ public class ProductService implements IProductService {
         } else {
             throw new InvalidInputServiceSingleException("Product with this version doesn't exist", ErrorCode.ERROR);
         }
+        return productEntity.getUuid();
     }
 
     @Override

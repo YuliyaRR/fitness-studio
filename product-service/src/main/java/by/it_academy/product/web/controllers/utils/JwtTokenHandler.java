@@ -6,6 +6,8 @@ import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.UUID;
+
 @Component
 public class JwtTokenHandler {
     private final JWTProperty property;
@@ -37,6 +39,14 @@ public class JwtTokenHandler {
                 .getBody().get("fio");
     }
 
+    public UUID getUUID(String token) {
+        String uuid = (String) Jwts.parser()
+                .setSigningKey(property.getSecret())
+                .parseClaimsJws(token)
+                .getBody().get("uuid");
+        return UUID.fromString(uuid);
+    }
+
     public UserToken getUserToken(String token) {
         Claims body = Jwts.parser()
                 .setSigningKey(property.getSecret())
@@ -45,8 +55,9 @@ public class JwtTokenHandler {
         String fio = (String) body.get("fio");
         String role = (String) body.get("role");
         String mail = body.getSubject();
+        UUID uuid = UUID.fromString((String)body.get("uuid"));
 
-        return new UserToken(mail, role, fio);
+        return new UserToken(mail, role, fio, uuid);
     }
 
     public Date getExpirationDate(String token) {
