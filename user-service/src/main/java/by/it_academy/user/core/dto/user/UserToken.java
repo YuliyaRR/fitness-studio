@@ -14,6 +14,9 @@ public class UserToken implements UserDetails {
     private String fio;
     private UUID uuid;
 
+    public UserToken() {
+    }
+
     public UserToken(String mail, String role, String fio, UUID uuid) {
         this.mail = mail;
         this.role = role;
