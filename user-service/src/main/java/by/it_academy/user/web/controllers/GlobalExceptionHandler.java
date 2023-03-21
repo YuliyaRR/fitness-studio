@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ResponseMultiError> handle(SendMailMultiException e) {
+    public ResponseEntity<ResponseMultiError> handle(SendMultiException e) {
         String message = e.getMessage();
         Gson gson = new Gson();
         ResponseMultiError responseMultiError = gson.fromJson(message, ResponseMultiError.class);
@@ -91,7 +91,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<List<ResponseSingleError>> handle(SendMailSingleException e) {
+    public ResponseEntity<List<ResponseSingleError>> handle(SendSingleException e) {
         String message = e.getMessage();
         Gson gson = new Gson();
         Type collectionType = new TypeToken<List<ResponseSingleError>>(){}.getType();

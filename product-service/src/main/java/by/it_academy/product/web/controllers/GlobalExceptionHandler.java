@@ -4,9 +4,9 @@ import by.it_academy.product.core.dto.error.ErrorCode;
 import by.it_academy.product.core.dto.error.LocalError;
 import by.it_academy.product.core.dto.error.ResponseMultiError;
 import by.it_academy.product.core.dto.error.ResponseSingleError;
-import by.it_academy.product.core.exception.ConversionTimeException;
-import by.it_academy.product.core.exception.InvalidInputServiceMultiException;
-import by.it_academy.product.core.exception.InvalidInputServiceSingleException;
+import by.it_academy.product.core.exception.*;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -74,6 +75,27 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(List.of(new ResponseSingleError(e.getErrorCode(), e.getMessage())));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ResponseMultiError> handle(SendMultiException e) {
+        String message = e.getMessage();
+        Gson gson = new Gson();
+        ResponseMultiError responseMultiError = gson.fromJson(message, ResponseMultiError.class);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(responseMultiError);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<List<ResponseSingleError>> handle(SendSingleException e) {
+        String message = e.getMessage();
+        Gson gson = new Gson();
+        Type collectionType = new TypeToken<List<ResponseSingleError>>(){}.getType();
+        List<ResponseSingleError> responseSingleError = gson.fromJson(message, collectionType);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(responseSingleError);
     }
 
     @ExceptionHandler(value = {ConversionTimeException.class, Exception.class})
