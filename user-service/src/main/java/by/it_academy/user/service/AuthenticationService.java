@@ -6,8 +6,8 @@ import by.it_academy.user.core.dto.mail.EmailDetails;
 import by.it_academy.user.core.dto.user.*;
 import by.it_academy.user.core.exception.ConversionTimeException;
 import by.it_academy.user.core.exception.InvalidLoginException;
-import by.it_academy.user.core.exception.SendMailMultiException;
-import by.it_academy.user.core.exception.SendMailSingleException;
+import by.it_academy.user.core.exception.SendMultiException;
+import by.it_academy.user.core.exception.SendSingleException;
 import by.it_academy.user.entity.UserEntity;
 import by.it_academy.user.repositories.api.AuthEntityRepository;
 import by.it_academy.user.service.api.IAuthenticationService;
@@ -28,7 +28,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.LocalDateTime;
 import java.util.UUID;
 @Validated
 public class AuthenticationService implements IAuthenticationService {
@@ -74,7 +73,9 @@ public class AuthenticationService implements IAuthenticationService {
     @Transactional
     public void verification(@NotNull @Valid VerificationCode verificationCode) {
         verificationService.verify(verificationCode);
-        repository.setStatusByMail(UserStatus.ACTIVATED, LocalDateTime.now(), verificationCode.getMail());
+        UserEntity userEntity = repository.findByMail(verificationCode.getMail())
+                .orElseThrow(() -> new InvalidLoginException("User with this email doesn't exist", ErrorCode.ERROR));
+        userService.updateStatus(UserStatus.ACTIVATED, userEntity.getUuid());
     }
 
     @Override
@@ -132,9 +133,9 @@ public class AuthenticationService implements IAuthenticationService {
             String body = send.body();
 
             if(statusCode >= 400 && statusCode < 500) {
-                throw new SendMailMultiException(body);
+                throw new SendMultiException(body);
             } else if (statusCode >= 500) {
-                throw new SendMailSingleException(body);
+                throw new SendSingleException(body);
             }
 
         } catch (IOException | InterruptedException e) {

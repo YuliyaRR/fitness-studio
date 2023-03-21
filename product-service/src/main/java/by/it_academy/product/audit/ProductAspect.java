@@ -2,8 +2,8 @@ package by.it_academy.product.audit;
 
 import by.it_academy.product.converters.GsonLocalDateTimeToLongSerializer;
 import by.it_academy.product.core.dto.AuditDTO;
-import by.it_academy.product.core.exception.SendMailMultiException;
-import by.it_academy.product.core.exception.SendMailSingleException;
+import by.it_academy.product.core.exception.SendMultiException;
+import by.it_academy.product.core.exception.SendSingleException;
 import by.it_academy.product.service.UserHolder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -73,9 +73,9 @@ public class ProductAspect {
             String body = send.body();
 
             if(statusCode >= 400 && statusCode < 500) {
-                throw new SendMailMultiException(body);
+                throw new SendMultiException(body);
             } else if (statusCode >= 500) {
-                throw new SendMailSingleException(body);
+                throw new SendSingleException(body);
             }
 
         } catch (IOException | InterruptedException e) {
