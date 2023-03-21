@@ -17,7 +17,7 @@ import java.util.UUID;
 public class AuditDTO {
     @NotNull
     private UUID uuid;
-
+    @NotNull
     @JsonProperty(value = "dt_create")
     @JsonSerialize(using = LocalDateTimeToLongMillisSerializer.class)
     @JsonDeserialize(using = StringToLDTJsonDeserializer.class)

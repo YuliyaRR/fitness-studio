@@ -7,6 +7,7 @@ import by.it_academy.user.core.dto.OnePage;
 import by.it_academy.user.core.dto.error.ErrorCode;
 import by.it_academy.user.core.dto.user.User;
 import by.it_academy.user.core.dto.user.UserCreateDTO;
+import by.it_academy.user.core.dto.user.UserStatus;
 import by.it_academy.user.core.exception.ConversionTimeException;
 import by.it_academy.user.core.exception.InvalidInputServiceSingleException;
 import by.it_academy.user.entity.RoleEntity;
@@ -116,6 +117,16 @@ public class UserService implements IUserService {
             throw new InvalidInputServiceSingleException("User with this version was not found in the database", ErrorCode.ERROR);
         }
         return userEntity.getUuid();
+    }
+
+    @Override
+    @AspectAudit(action = AuditAction.UPDATED, type = EssenceType.USER)
+    public UUID updateStatus(UserStatus userStatus, UUID uuid) {
+        UserEntity userEntity = repository.findById(uuid)
+                .orElseThrow(() -> new InvalidInputServiceSingleException("User with this uuid was not found in the database", ErrorCode.ERROR));
+        userEntity.setStatus(new StatusEntity(userStatus));
+        UserEntity entity = repository.save(userEntity);
+        return entity.getUuid();
     }
 
     private void checkUniqueMail(UserCreateDTO userCreateDTO) {

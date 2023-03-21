@@ -3,6 +3,7 @@ package by.it_academy.user.service.api;
 import by.it_academy.user.core.dto.OnePage;
 import by.it_academy.user.core.dto.user.User;
 import by.it_academy.user.core.dto.user.UserCreateDTO;
+import by.it_academy.user.core.dto.user.UserStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,8 @@ public interface IUserService {
     User getUserInfo(@NotNull UUID uuid);
 
     UUID update(@NotNull UUID uuid, @NotNull LocalDateTime dtUpdate, @NotNull @Valid UserCreateDTO userCreateDTO);
+
+    UUID updateStatus(UserStatus userStatus, UUID uuid);
 
 
 }
