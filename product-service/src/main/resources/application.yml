@@ -7,9 +7,11 @@ spring:
       ddl-auto: none
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://db:5432/micro
-    username: micro
+    url: jdbc:postgresql://db_product:5432/fitness
+    username: fitness
     password: root
 jwt:
   secret: zgxdtyjuihlhi
   issuer: fitnessStudio
+audit:
+  url: http://audit-service:8080/audit/inner
