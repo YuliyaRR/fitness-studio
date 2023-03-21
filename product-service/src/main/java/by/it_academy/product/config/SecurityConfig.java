@@ -4,6 +4,7 @@ import by.it_academy.product.web.controllers.filter.JwtFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -40,13 +41,12 @@ public class SecurityConfig {
                 .and();
         http
                 .authorizeHttpRequests(requests -> requests
-                        /*.requestMatchers("/product/{uuid}/dt_update/{dt_update}").hasRole("ADMIN")
+                        .requestMatchers("/product/{uuid}/dt_update/{dt_update}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,"/product").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/product").permitAll()
                         .requestMatchers(HttpMethod.POST,"/recipe").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/recipe").permitAll()
-                        .requestMatchers("/recipe/{uuid}/dt_update/{dt_update}").hasRole("ADMIN")*/
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/recipe/{uuid}/dt_update/{dt_update}").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
 
