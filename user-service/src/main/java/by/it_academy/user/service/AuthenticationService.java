@@ -3,6 +3,7 @@ package by.it_academy.user.service;
 import by.it_academy.user.core.dto.VerificationCode;
 import by.it_academy.user.core.dto.error.ErrorCode;
 import by.it_academy.user.core.dto.mail.EmailDetails;
+import by.it_academy.user.core.dto.mail.MailTheme;
 import by.it_academy.user.core.dto.user.*;
 import by.it_academy.user.core.exception.ConversionTimeException;
 import by.it_academy.user.core.exception.InvalidLoginException;
@@ -112,7 +113,7 @@ public class AuthenticationService implements IAuthenticationService {
         EmailDetails details = new EmailDetails();
         details.setRecipient(verificationCode.getMail());
         details.setMsgBody(verificationCode.getCode().toString());
-        details.setSubject("Verification code");
+        details.setSubject(MailTheme.VERIFICATION_CODE.getDescription());
         return details;
     }
 
