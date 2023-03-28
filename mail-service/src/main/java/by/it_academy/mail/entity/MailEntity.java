@@ -1,9 +1,7 @@
 package by.it_academy.mail.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import by.it_academy.mail.core.mail.MailTheme;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -15,6 +13,8 @@ public class MailEntity {
     private UUID uuid;
     private String message;
     private String email;
+    @Enumerated(EnumType.STRING)
+    private MailTheme theme;
     @Column(name = "is_send")
     private boolean isSend;
     @Column(name = "attempt_of_sending")
@@ -26,11 +26,12 @@ public class MailEntity {
     }
 
     public MailEntity(UUID uuid, String message,
-                      String email, boolean isSend,
+                      String email, MailTheme theme, boolean isSend,
                       int attemptOfSending, int limitOfAttempts) {
         this.uuid = uuid;
         this.message = message;
         this.email = email;
+        this.theme = theme;
         this.isSend = isSend;
         this.attemptOfSending = attemptOfSending;
         this.limitOfAttempts = limitOfAttempts;
@@ -82,6 +83,14 @@ public class MailEntity {
 
     public void setLimitOfAttempts(int limitOfAttempts) {
         this.limitOfAttempts = limitOfAttempts;
+    }
+
+    public MailTheme getTheme() {
+        return theme;
+    }
+
+    public void setTheme(MailTheme theme) {
+        this.theme = theme;
     }
 
     @Override
