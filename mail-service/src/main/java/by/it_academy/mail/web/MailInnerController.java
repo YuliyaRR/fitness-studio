@@ -14,8 +14,8 @@ public class MailInnerController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public void sendMail(@Valid @RequestBody EmailDetails emailDetails) {
-        mailService.sendSimpleEmail(emailDetails);
+    public void saveMail(@Valid @RequestBody EmailDetails emailDetails) {
+        mailService.save(emailDetails);
     }
 
 }
