@@ -1,14 +1,19 @@
 package by.it_academy.mail.service.api;
 
 import by.it_academy.mail.core.mail.EmailDetails;
-import by.it_academy.mail.entity.MailEntity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
+
 public interface IMailService {
 
-    void sendSimpleEmail(@NotNull @Valid EmailDetails emailDetails);
+    void save(@NotNull @Valid EmailDetails emailDetails);
 
-    void save(MailEntity mailEntity);
+    List<EmailDetails> getUnsentEmails();
+
+    void sendMail(@NotNull @Valid EmailDetails emailDetails);
+
+    void createSendingMailTask();
 
 }
