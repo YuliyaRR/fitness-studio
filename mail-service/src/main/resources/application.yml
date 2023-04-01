@@ -1,5 +1,14 @@
 debug: true
 spring:
+  task:
+    scheduling:
+      pool:
+        size: 10
+    execution:
+      pool:
+        queue-capacity: 100
+        core-size: 10
+        max-size: 15
   jpa:
     database: POSTGRESQL
     show-sql: true
