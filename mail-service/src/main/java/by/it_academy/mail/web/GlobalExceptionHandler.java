@@ -5,6 +5,7 @@ import by.it_academy.mail.core.error.LocalError;
 import by.it_academy.mail.core.error.ResponseMultiError;
 import by.it_academy.mail.core.error.ResponseSingleError;
 import by.it_academy.mail.core.exception.ConversionTimeException;
+import by.it_academy.mail.core.exception.InvalidInputServiceSingleException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
@@ -52,6 +53,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(List.of(new ResponseSingleError(ErrorCode.ERROR, e.getMessage())));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<List<ResponseSingleError>> handle(InvalidInputServiceSingleException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(List.of(new ResponseSingleError(e.getErrorCode(), e.getMessage())));
     }
 
     @ExceptionHandler
