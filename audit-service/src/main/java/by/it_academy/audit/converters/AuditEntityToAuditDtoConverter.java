@@ -6,6 +6,8 @@ import by.it_academy.audit.entity.AuditEntity;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class AuditEntityToAuditDtoConverter implements Converter<AuditEntity, AuditDTO> {
     @Override
@@ -18,11 +20,23 @@ public class AuditEntityToAuditDtoConverter implements Converter<AuditEntity, Au
         auditDTO.setType(source.getType());
         auditDTO.setId(source.getId());
 
-        UserToken user = new UserToken();
-        user.setUuid(source.getUserUUID());
-        user.setMail(source.getUserMail());
-        user.setFio(source.getUserFio());
-        user.setRole(source.getRole());
+        UserToken user;
+
+        UUID userUUID = source.getUserUUID();
+        String userMail = source.getUserMail();
+        String userFio = source.getUserFio();
+        String role = source.getRole();
+
+        if(userUUID == null && userMail == null && userFio == null && role == null){
+           user = null;
+        } else {
+            user = new UserToken();
+
+            user.setUuid(userUUID);
+            user.setMail(userMail);
+            user.setFio(userFio);
+            user.setRole(role);
+        }
 
         auditDTO.setUser(user);
 
