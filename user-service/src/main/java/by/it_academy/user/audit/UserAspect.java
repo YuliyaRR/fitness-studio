@@ -31,10 +31,6 @@ import java.util.UUID;
 public class UserAspect {
     @Value("${audit.url}")
     private String AUDIT_URL;
-    private final String AUTO_USER_FIO = "SELF_REGISTERED_USER";
-    private final UUID AUTO_USER_UUID = UUID.fromString("4215be57-6b08-49df-aff9-09f480a1f736");
-    private final String AUTO_USER_MAIL = "user@user.auto";
-    private final String AUTO_USER_ROLE = "USER";
     private final UserHolder userHolder;
     public UserAspect(UserHolder userHolder) {
         this.userHolder = userHolder;
@@ -56,13 +52,7 @@ public class UserAspect {
         Authentication authentication = userHolder.getAuthentication();
         UserToken userToken = new UserToken();
 
-        if(authentication instanceof AnonymousAuthenticationToken) {
-            userToken.setUuid(AUTO_USER_UUID);
-            userToken.setFio(AUTO_USER_FIO);
-            userToken.setMail(AUTO_USER_MAIL);
-            userToken.setRole(AUTO_USER_ROLE);
-
-        } else {
+        if(!(authentication instanceof AnonymousAuthenticationToken)){
             userToken = userHolder.getUser();
         }
 
