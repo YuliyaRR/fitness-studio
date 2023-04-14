@@ -1,6 +1,7 @@
 package by.it_academy.audit.converters;
 
 import by.it_academy.audit.core.dto.AuditDTO;
+import by.it_academy.audit.core.dto.UserRole;
 import by.it_academy.audit.core.dto.UserToken;
 import by.it_academy.audit.entity.AuditEntity;
 import org.springframework.core.convert.converter.Converter;
@@ -25,7 +26,7 @@ public class AuditEntityToAuditDtoConverter implements Converter<AuditEntity, Au
         UUID userUUID = source.getUserUUID();
         String userMail = source.getUserMail();
         String userFio = source.getUserFio();
-        String role = source.getRole();
+        UserRole role = source.getRole();
 
         if(userUUID == null && userMail == null && userFio == null && role == null){
            user = null;
