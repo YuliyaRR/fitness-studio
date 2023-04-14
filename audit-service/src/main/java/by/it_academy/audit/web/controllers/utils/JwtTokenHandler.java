@@ -1,6 +1,7 @@
 package by.it_academy.audit.web.controllers.utils;
 
 import by.it_academy.audit.config.JWTProperty;
+import by.it_academy.audit.core.dto.UserRole;
 import by.it_academy.audit.core.dto.UserToken;
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
@@ -53,7 +54,7 @@ public class JwtTokenHandler {
                 .parseClaimsJws(token)
                 .getBody();
         String fio = (String) body.get("fio");
-        String role = (String) body.get("role");
+        UserRole role = UserRole.valueOf((String) body.get("role"));
         String mail = body.getSubject();
         UUID uuid = UUID.fromString((String)body.get("uuid"));
 
