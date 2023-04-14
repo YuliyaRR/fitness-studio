@@ -1,6 +1,7 @@
 package by.it_academy.user.web.controllers.utils;
 
 import by.it_academy.user.config.JWTProperty;
+import by.it_academy.user.core.dto.user.UserRole;
 import by.it_academy.user.core.dto.user.UserToken;
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 @Component
 public class JwtTokenHandler {
@@ -39,6 +41,19 @@ public class JwtTokenHandler {
                 .getBody();
 
         return claims.getSubject();
+    }
+
+    public UserToken getUserToken(String token) {
+        Claims body = Jwts.parser()
+                .setSigningKey(property.getSecret())
+                .parseClaimsJws(token)
+                .getBody();
+        String fio = (String) body.get("fio");
+        UserRole role = UserRole.valueOf((String) body.get("role"));
+        String mail = body.getSubject();
+        UUID uuid = UUID.fromString((String)body.get("uuid"));
+
+        return new UserToken(mail, role, fio, uuid);
     }
 
     public Date getExpirationDate(String token) {
