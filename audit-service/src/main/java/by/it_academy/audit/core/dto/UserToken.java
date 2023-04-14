@@ -12,20 +12,14 @@ import java.util.UUID;
 @JsonPropertyOrder({"uuid", "mail", "fio", "role"})
 public class UserToken implements UserDetails {
     private String mail;
-    private String role;
+    private UserRole role;
     private String fio;
     private UUID uuid;
 
     public UserToken() {
     }
 
-    public UserToken(String mail, String role, String fio) {
-        this.mail = mail;
-        this.role = role;
-        this.fio = fio;
-    }
-
-    public UserToken(String mail, String role, String fio, UUID uuid) {
+    public UserToken(String mail, UserRole role, String fio, UUID uuid) {
         this.mail = mail;
         this.role = role;
         this.fio = fio;
@@ -40,7 +34,7 @@ public class UserToken implements UserDetails {
         this.mail = mail;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 
@@ -48,7 +42,7 @@ public class UserToken implements UserDetails {
         return fio;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 

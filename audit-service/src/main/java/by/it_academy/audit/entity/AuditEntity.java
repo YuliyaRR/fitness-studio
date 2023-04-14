@@ -1,6 +1,7 @@
 package by.it_academy.audit.entity;
 
 import by.it_academy.audit.core.dto.EssenceType;
+import by.it_academy.audit.core.dto.UserRole;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,8 @@ public class AuditEntity {
     @Column(name = "user_fio")
     private String userFio;
     @Column(name = "user_role")
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
     private String text;
     @Enumerated(EnumType.STRING)
     private EssenceType type;
@@ -32,7 +34,7 @@ public class AuditEntity {
 
     public AuditEntity(UUID uuid, LocalDateTime dtCreate,
                        UUID userUUID, String userMail,
-                       String userFio, String role,
+                       String userFio, UserRole role,
                        String text, EssenceType type, String id) {
         this.uuid = uuid;
         this.dtCreate = dtCreate;
@@ -85,11 +87,11 @@ public class AuditEntity {
         this.userFio = userFio;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 
