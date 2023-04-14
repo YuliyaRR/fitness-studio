@@ -1,6 +1,5 @@
 package by.it_academy.user.web.controllers.filter;
 
-import by.it_academy.user.core.dto.user.User;
 import by.it_academy.user.core.dto.user.UserToken;
 import by.it_academy.user.service.api.IAuthenticationService;
 import by.it_academy.user.web.controllers.utils.JwtTokenHandler;
@@ -48,8 +47,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        User user = authenticationService.get(jwtHandler.getMail(token));
-        UserToken userToken = new UserToken(user.getMail(), user.getRole().name(), user.getFio(), user.getUuid());
+        UserToken userToken = jwtHandler.getUserToken(token);
 
 
         UsernamePasswordAuthenticationToken
