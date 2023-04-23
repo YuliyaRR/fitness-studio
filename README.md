@@ -200,3 +200,32 @@ An internal microservice, not connected to the outside world. In the current ver
 SMTP server - gmail.com is used to send mail.
 
 ----
+
+### Audit-service
+The service realises the storage of information about actions in the system. In particular, operations for creating/updating user, product and recipe are recorded. 
+Information is generated directly in the user-service and product-service using AOP and sent to the audit-service via HTTP, json.
+To implement AOP, a custom annotation is used that marks the required methods.
+The service contains an internal endpoint that accepts HTTP requests from other services.
+
+#### Endpoints
+
+##### ***GET /api/v1/audit***
+
+Get system activity page. Access only for admin. The JWT token is required.
+
+Parameters in query:
+* page (integer)  - Number of page for view. Default value - 0;
+
+* size (integer) - Amount elements on one page. Default value - 20.
+
+Responses: 200, 400, 401, 403, 500.
+
+##### ***GET /api/v1/audit/{uuid}***
+
+Get information about a specific audit operation by uuid. Administrator access only. Requires a JWT token.
+
+Required parameters in the path:
+* uuid (string($uuid)) - ID of the audit operation.
+
+Answers: 200, 400, 401, 403, 500.
+
