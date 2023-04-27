@@ -20,7 +20,7 @@ public interface IUserService {
 
     UUID update(@NotNull UUID uuid, @NotNull LocalDateTime dtUpdate, @NotNull @Valid UserCreateDTO userCreateDTO);
 
-    UUID updateStatus(UserStatus userStatus, UUID uuid);
+    UUID updateStatus(@NotNull UserStatus userStatus, @NotNull UUID uuid);
 
 
 }
