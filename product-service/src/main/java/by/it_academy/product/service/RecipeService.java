@@ -23,6 +23,7 @@ import jakarta.validation.constraints.Past;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -49,6 +50,7 @@ public class RecipeService implements IRecipeService {
     }
 
     @Override
+    @Transactional
     @AspectAudit(action = AuditAction.CREATE_RECIPE, type = EssenceType.RECIPE)
     public UUID save(@NotNull RecipeCreate recipeCreate) {
         validator.validate(recipeCreate);
@@ -64,16 +66,19 @@ public class RecipeService implements IRecipeService {
                         ingredient.getWeight()))
                 .collect(Collectors.toList());
 
+        UUID uuid = UUID.randomUUID();
         LocalDateTime dtCreate = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
         RecipeEntity recipeEntity = RecipeEntity.RecipeEntityBuilder.create()
-                .setUuid(UUID.randomUUID())
+                .setUuid(uuid)
                 .setDtCreate(dtCreate)
                 .setDtUpdate(dtCreate)
                 .setTitle(title)
                 .setComposition(comp).build();
-        repository.save(recipeEntity);
-        return recipeEntity.getUuid();
+
+        repository.saveAndFlush(recipeEntity);
+
+        return uuid;
     }
 
     @Override
@@ -95,6 +100,7 @@ public class RecipeService implements IRecipeService {
     }
 
     @Override
+    @Transactional
     @AspectAudit(action = AuditAction.UPDATED_RECIPE, type = EssenceType.RECIPE)
     public UUID update(@NotNull UUID uuid, @NotNull @Past LocalDateTime dtUpdate, @NotNull RecipeCreate recipeCreate) {
         validator.validate(recipeCreate);
@@ -119,11 +125,13 @@ public class RecipeService implements IRecipeService {
                 .collect(Collectors.toList());
 
             entity.setComposition(comp);
-            repository.save(entity);
+
+            repository.saveAndFlush(entity);
+
         } else {
             throw new InvalidInputServiceSingleException("Recipe with this version doesn't exist", ErrorCode.ERROR);
         }
-        return entity.getUuid();
+        return uuid;
     }
 
     private void checkUniqueTitle(@NotNull RecipeCreate recipeCreate) {
