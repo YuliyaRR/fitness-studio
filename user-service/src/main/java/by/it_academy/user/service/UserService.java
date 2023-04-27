@@ -21,6 +21,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
@@ -41,6 +42,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     @AspectAudit(action = AuditAction.CREATE, type = EssenceType.USER)
     public UUID save(@NotNull @Valid UserCreateDTO userCreateDTO) {
         checkUniqueMail(userCreateDTO);
@@ -55,8 +57,9 @@ public class UserService implements IUserService {
         password = passwordEncoder.encode(password);
         userEntity.setPassword(password);
 
-        UserEntity save = repository.save(userEntity);
-        return save.getUuid();
+        repository.saveAndFlush(userEntity);
+
+        return userEntity.getUuid();
     }
 
     @Override
@@ -94,6 +97,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     @AspectAudit(action = AuditAction.UPDATED, type = EssenceType.USER)
     public UUID update(@NotNull UUID uuid, @NotNull LocalDateTime dtUpdate, @NotNull @Valid UserCreateDTO userCreateDTO) {
 
@@ -112,21 +116,25 @@ public class UserService implements IUserService {
             userEntity.setRole(new RoleEntity(userCreateDTO.getRole()));
             userEntity.setStatus(new StatusEntity(userCreateDTO.getStatus()));
             userEntity.setPassword(passwordEncoder.encode(password));
-            repository.save(userEntity);
+
+            repository.saveAndFlush(userEntity);
+
         } else {
             throw new InvalidInputServiceSingleException("User with this version was not found in the database", ErrorCode.ERROR);
         }
-        return userEntity.getUuid();
+
+        return uuid;
     }
 
     @Override
+    @Transactional
     @AspectAudit(action = AuditAction.UPDATED, type = EssenceType.USER)
-    public UUID updateStatus(UserStatus userStatus, UUID uuid) {
+    public UUID updateStatus(@NotNull UserStatus userStatus, @NotNull UUID uuid) {
         UserEntity userEntity = repository.findById(uuid)
                 .orElseThrow(() -> new InvalidInputServiceSingleException("User with this uuid was not found in the database", ErrorCode.ERROR));
         userEntity.setStatus(new StatusEntity(userStatus));
-        UserEntity entity = repository.save(userEntity);
-        return entity.getUuid();
+        repository.saveAndFlush(userEntity);
+        return uuid;
     }
 
     private void checkUniqueMail(UserCreateDTO userCreateDTO) {
