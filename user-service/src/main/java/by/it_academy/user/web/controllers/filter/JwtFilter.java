@@ -1,7 +1,6 @@
 package by.it_academy.user.web.controllers.filter;
 
 import by.it_academy.user.core.dto.user.UserToken;
-import by.it_academy.user.service.api.IAuthenticationService;
 import by.it_academy.user.web.controllers.utils.JwtTokenHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,12 +19,9 @@ import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-
-    private final IAuthenticationService authenticationService;
     private final JwtTokenHandler jwtHandler;
 
-    public JwtFilter(IAuthenticationService authenticationService, JwtTokenHandler jwtHandler) {
-        this.authenticationService = authenticationService;
+    public JwtFilter(JwtTokenHandler jwtHandler) {
         this.jwtHandler = jwtHandler;
     }
 
