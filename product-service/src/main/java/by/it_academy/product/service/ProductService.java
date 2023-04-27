@@ -18,6 +18,7 @@ import jakarta.validation.constraints.Past;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
@@ -35,6 +36,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     @AspectAudit(action = AuditAction.CREATE_PRODUCT, type = EssenceType.PRODUCT)
     public UUID create(@NotNull @Valid ProductCreate productCreate) {
         checkUniqueTitle(productCreate);
@@ -44,7 +46,9 @@ public class ProductService implements IProductService {
         }
 
         ProductEntity productEntity = conversionService.convert(productCreate, ProductEntity.class);
-        repository.save(productEntity);
+
+        repository.saveAndFlush(productEntity);
+
         return productEntity.getUuid();
     }
 
@@ -70,6 +74,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     @AspectAudit(action = AuditAction.UPDATED_PRODUCT, type = EssenceType.PRODUCT)
     public UUID updateProduct(@NotNull UUID uuid, @NotNull @Past LocalDateTime dtUpdate, @NotNull @Valid ProductCreate productCreate) {
         String productCreateTitle = productCreate.getTitle();
@@ -88,11 +93,14 @@ public class ProductService implements IProductService {
             productEntity.setProteins(productCreate.getProteins());
             productEntity.setFats(productCreate.getFats());
             productEntity.setCarbohydrates(productCreate.getCarbohydrates());
-            repository.save(productEntity);
+
+            repository.saveAndFlush(productEntity);
+
         } else {
             throw new InvalidInputServiceSingleException("Product with this version doesn't exist", ErrorCode.ERROR);
         }
-        return productEntity.getUuid();
+
+        return uuid;
     }
 
     @Override
