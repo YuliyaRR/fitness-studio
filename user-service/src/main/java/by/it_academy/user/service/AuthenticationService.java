@@ -31,6 +31,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.UUID;
 @Validated
+@Transactional(readOnly = true)
 public class AuthenticationService implements IAuthenticationService {
     @Value("${mail.url}")
     private String MAIL_URL;
