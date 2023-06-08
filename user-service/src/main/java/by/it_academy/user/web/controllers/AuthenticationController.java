@@ -10,25 +10,18 @@ import by.it_academy.user.service.api.IAuthenticationService;
 import by.it_academy.user.validator.api.ValidEmail;
 import by.it_academy.user.web.controllers.utils.JwtTokenHandler;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/users")
 public class AuthenticationController {
     private final IAuthenticationService authenticationService;
     private final UserHolder userHolder;
     private final JwtTokenHandler jwtTokenHandler;
-
-    public AuthenticationController(IAuthenticationService authenticationService,
-                                    UserHolder userHolder,
-                                    JwtTokenHandler jwtTokenHandler) {
-        this.authenticationService = authenticationService;
-        this.userHolder = userHolder;
-        this.jwtTokenHandler = jwtTokenHandler;
-    }
 
     @RequestMapping(path = "/registration", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
