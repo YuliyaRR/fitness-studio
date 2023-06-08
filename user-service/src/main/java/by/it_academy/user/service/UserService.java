@@ -17,29 +17,25 @@ import by.it_academy.user.repositories.api.UserEntityRepository;
 import by.it_academy.user.service.api.IUserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+@Service
+@RequiredArgsConstructor
 @Validated
 public class UserService implements IUserService {
     private final UserEntityRepository repository;
     private final ConversionService conversionService;
     private final PasswordEncoder passwordEncoder;
-
-    public UserService(UserEntityRepository repository,
-                       ConversionService conversionService,
-                       PasswordEncoder passwordEncoder) {
-        this.repository = repository;
-        this.conversionService = conversionService;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     @Transactional

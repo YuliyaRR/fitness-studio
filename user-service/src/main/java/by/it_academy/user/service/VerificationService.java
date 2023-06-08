@@ -8,15 +8,15 @@ import by.it_academy.user.repositories.api.VerificationCodeEntityRepository;
 import by.it_academy.user.service.api.IVerificationService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+@Service
+@RequiredArgsConstructor
 @Validated
 public class VerificationService implements IVerificationService {
     private final VerificationCodeEntityRepository repository;
-
-    public VerificationService(VerificationCodeEntityRepository repository) {
-        this.repository = repository;
-    }
 
     @Override
     public void save(@NotNull @Valid VerificationCode verificationCode) {

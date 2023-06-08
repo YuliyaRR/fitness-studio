@@ -18,9 +18,11 @@ import by.it_academy.user.validator.api.ValidEmail;
 import com.google.gson.Gson;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
@@ -30,6 +32,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.UUID;
+@Service
+@RequiredArgsConstructor
 @Validated
 @Transactional(readOnly = true)
 public class AuthenticationService implements IAuthenticationService {
@@ -40,18 +44,6 @@ public class AuthenticationService implements IAuthenticationService {
     private final IVerificationService verificationService;
     private final ConversionService conversionService;
     private final PasswordEncoder passwordEncoder;
-
-    public AuthenticationService(AuthEntityRepository repository,
-                                 IUserService userService,
-                                 IVerificationService verificationService,
-                                 ConversionService conversionService,
-                                 PasswordEncoder passwordEncoder) {
-        this.repository = repository;
-        this.userService = userService;
-        this.verificationService = verificationService;
-        this.conversionService = conversionService;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     @Transactional
