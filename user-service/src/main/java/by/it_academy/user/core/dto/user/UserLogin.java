@@ -3,9 +3,15 @@ package by.it_academy.user.core.dto.user;
 import by.it_academy.user.validator.api.ValidEmail;
 import by.it_academy.user.validator.api.ValidPassword;
 import by.it_academy.user.validator.api.ValidString;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Objects;
-
+@Getter
+@Setter
+@EqualsAndHashCode
+@NoArgsConstructor
 public class UserLogin {
     @ValidString
     @ValidEmail
@@ -13,36 +19,4 @@ public class UserLogin {
     @ValidString
     @ValidPassword
     private String password;
-
-    public UserLogin() {
-    }
-
-    public String getMail() {
-        return mail;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UserLogin userLogin = (UserLogin) o;
-        return Objects.equals(mail, userLogin.mail) && Objects.equals(password, userLogin.password);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(mail, password);
-    }
 }
