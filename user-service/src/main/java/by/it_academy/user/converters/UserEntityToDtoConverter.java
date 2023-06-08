@@ -10,7 +10,7 @@ public class UserEntityToDtoConverter implements Converter<UserEntity, User> {
 
     @Override
     public User convert(UserEntity source) {
-        return User.UserBuilder.create()
+        return User.builder()
                 .setUuid(source.getUuid())
                 .setDtCreate(source.getDtCreate())
                 .setDtUpdate(source.getDtUpdate())

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class UserRegistrationToUserCreateConverter implements Converter<UserRegistration, UserCreateDTO> {
     @Override
     public UserCreateDTO convert(UserRegistration source) {
-        return UserCreateDTO.UserCreateBuilder.create()
+        return UserCreateDTO.builder()
                 .setMail(source.getMail())
                 .setFio(source.getFio())
                 .setPassword(source.getPassword())

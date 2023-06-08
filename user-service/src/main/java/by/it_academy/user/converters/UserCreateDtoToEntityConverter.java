@@ -15,7 +15,7 @@ public class UserCreateDtoToEntityConverter implements Converter<UserCreateDTO, 
     public UserEntity convert(UserCreateDTO source) {
         LocalDateTime dtCreate = LocalDateTime.now();
 
-        return UserEntity.UserEntityBuilder.create()
+        return UserEntity.builder()
                 .setUuid(UUID.randomUUID())
                 .setMail(source.getMail())
                 .setFio(source.getFio())
