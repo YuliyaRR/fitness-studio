@@ -8,6 +8,7 @@ import by.it_academy.user.core.exception.SendSingleException;
 import by.it_academy.user.service.UserHolder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -25,16 +26,13 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
+@RequiredArgsConstructor
 @Aspect
 @Component
 public class UserAspect {
     @Value("${audit.url}")
     private String AUDIT_URL;
     private final UserHolder userHolder;
-    public UserAspect(UserHolder userHolder) {
-        this.userHolder = userHolder;
-    }
 
     @AfterReturning(value = "@annotation(AspectAudit)", returning = "uuid")
     public void audit(JoinPoint joinPoint, UUID uuid) {
