@@ -3,48 +3,20 @@ package by.it_academy.user.core.dto;
 import by.it_academy.user.validator.api.ValidEmail;
 import by.it_academy.user.validator.api.ValidString;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.Objects;
 import java.util.UUID;
-
+@Getter
+@Setter
+@EqualsAndHashCode
+@AllArgsConstructor
 public class VerificationCode {
     @ValidString
     @ValidEmail
     private String mail;
     @NotNull
     private UUID code;
-
-    public VerificationCode(String mail, UUID code) {
-        this.mail = mail;
-        this.code = code;
-    }
-
-    public String getMail() {
-        return mail;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
-    }
-
-    public UUID getCode() {
-        return code;
-    }
-
-    public void setCode(UUID code) {
-        this.code = code;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        VerificationCode verificationCode = (VerificationCode) o;
-        return Objects.equals(mail, verificationCode.mail) && Objects.equals(code, verificationCode.code);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(mail, code);
-    }
 }
