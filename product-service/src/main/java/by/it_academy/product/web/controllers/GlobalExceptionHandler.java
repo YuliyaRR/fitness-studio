@@ -10,6 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -21,12 +22,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+@NoArgsConstructor
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    public GlobalExceptionHandler() {
-    }
 
     @ExceptionHandler
     public ResponseEntity<ResponseMultiError> handle(InvalidInputServiceMultiException e) {
