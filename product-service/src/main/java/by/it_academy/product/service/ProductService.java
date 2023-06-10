@@ -15,25 +15,23 @@ import by.it_academy.product.service.api.IProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+@Service
 @Validated
+@RequiredArgsConstructor
 public class ProductService implements IProductService {
     private final ProductEntityRepository repository;
     private final ConversionService conversionService;
-
-    public ProductService(ProductEntityRepository repository,
-                          ConversionService conversionService) {
-        this.repository = repository;
-        this.conversionService = conversionService;
-    }
 
     @Override
     @Transactional

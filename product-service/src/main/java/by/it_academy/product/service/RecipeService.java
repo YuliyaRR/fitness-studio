@@ -20,9 +20,11 @@ import by.it_academy.product.validator.api.IValidator;
 import by.it_academy.product.core.dto.OnePage;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -32,22 +34,13 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-
+@Service
+@RequiredArgsConstructor
 public class RecipeService implements IRecipeService {
     private final RecipeEntityRepository repository;
     private final IProductService productService;
     private final ConversionService conversionService;
     private final IValidator<RecipeCreate> validator;
-
-    public RecipeService(RecipeEntityRepository repository,
-                         IProductService productService,
-                         ConversionService conversionService,
-                         IValidator<RecipeCreate> validator) {
-        this.repository = repository;
-        this.productService = productService;
-        this.conversionService = conversionService;
-        this.validator = validator;
-    }
 
     @Override
     @Transactional
@@ -69,7 +62,7 @@ public class RecipeService implements IRecipeService {
         UUID uuid = UUID.randomUUID();
         LocalDateTime dtCreate = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
 
-        RecipeEntity recipeEntity = RecipeEntity.RecipeEntityBuilder.create()
+        RecipeEntity recipeEntity = RecipeEntity.builder()
                 .setUuid(uuid)
                 .setDtCreate(dtCreate)
                 .setDtUpdate(dtCreate)
@@ -164,7 +157,7 @@ public class RecipeService implements IRecipeService {
         BigDecimal totalFats = BigDecimal.valueOf(0.0);
         BigDecimal totalCarbohydrates = BigDecimal.valueOf(0.0);
 
-        Recipe.RecipeBuilder recipeBuilder = Recipe.RecipeBuilder.create();
+        Recipe.RecipeBuilder recipeBuilder = Recipe.builder();
 
         recipeBuilder.setUuid(entity.getUuid())
                 .setDtCreate(entity.getDtCreate())
