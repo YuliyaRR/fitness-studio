@@ -4,6 +4,7 @@ import by.it_academy.user.config.JWTProperty;
 import by.it_academy.user.core.dto.user.UserRole;
 import by.it_academy.user.core.dto.user.UserToken;
 import io.jsonwebtoken.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -11,13 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+@RequiredArgsConstructor
 @Component
 public class JwtTokenHandler {
     private final JWTProperty property;
-
-    public JwtTokenHandler(JWTProperty property) {
-        this.property = property;
-    }
 
     public String generateAccessToken(UserToken user) {
         Map<String, Object> payload = new HashMap<>();
