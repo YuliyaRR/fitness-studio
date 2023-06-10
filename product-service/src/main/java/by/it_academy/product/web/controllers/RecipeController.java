@@ -5,6 +5,7 @@ import by.it_academy.product.core.dto.recipe.Recipe;
 import by.it_academy.product.core.dto.recipe.RecipeCreate;
 import by.it_academy.product.service.api.IRecipeService;
 import jakarta.validation.constraints.Past;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -12,14 +13,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/recipe")
 public class RecipeController {
     private final IRecipeService recipeService;
-
-    public RecipeController(IRecipeService recipeService) {
-        this.recipeService = recipeService;
-    }
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)

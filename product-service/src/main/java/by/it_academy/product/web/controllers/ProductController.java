@@ -6,6 +6,7 @@ import by.it_academy.product.core.dto.product.ProductCreate;
 import by.it_academy.product.service.api.IProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Past;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -13,14 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/product")
 public class ProductController {
     private final IProductService productService;
-
-    public ProductController(IProductService productService) {
-        this.productService = productService;
-    }
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
