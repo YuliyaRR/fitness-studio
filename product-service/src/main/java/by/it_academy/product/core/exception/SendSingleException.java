@@ -5,7 +5,4 @@ public class SendSingleException extends RuntimeException{
     public SendSingleException(String message) {
         super(message);
     }
-
-    public SendSingleException() {
-    }
 }

@@ -1,16 +1,12 @@
 package by.it_academy.product.core.exception;
 
 import by.it_academy.product.core.dto.error.ErrorCode;
+import lombok.Getter;
 
 public class InvalidInputServiceMultiException extends IllegalArgumentException{
-
     private String field;
-
+    @Getter
     private ErrorCode errorCode;
-
-    public InvalidInputServiceMultiException(String s) {
-        super(s);
-    }
 
     public InvalidInputServiceMultiException(ErrorCode errorCode) {
         this.errorCode = errorCode;
@@ -24,9 +20,5 @@ public class InvalidInputServiceMultiException extends IllegalArgumentException{
     @Override
     public String getLocalizedMessage() {
         return field;
-    }
-
-    public ErrorCode getErrorCode() {
-        return errorCode;
     }
 }
