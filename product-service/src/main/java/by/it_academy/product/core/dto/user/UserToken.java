@@ -1,5 +1,8 @@
 package by.it_academy.product.core.dto.user;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -7,51 +10,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
-
+@Getter
+@Setter
+@AllArgsConstructor
 public class UserToken implements UserDetails {
     private String mail;
     private UserRole role;
     private String fio;
     private UUID uuid;
-
-    public UserToken(String mail, UserRole role, String fio, UUID uuid) {
-        this.mail = mail;
-        this.role = role;
-        this.fio = fio;
-        this.uuid = uuid;
-    }
-
-    public String getMail() {
-        return mail;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public String getFio() {
-        return fio;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
-
-    public void setFio(String fio) {
-        this.fio = fio;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
