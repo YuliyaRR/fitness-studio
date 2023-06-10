@@ -5,26 +5,21 @@ import by.it_academy.product.core.dto.product.Product;
 import by.it_academy.product.entity.IngredientEntity;
 import by.it_academy.product.entity.ProductEntity;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
+@RequiredArgsConstructor
 @Component
 public class IngredientEntityToIngredientCalculatedConverter implements Converter<IngredientEntity, IngredientCalculated> {
-
     private final ProductEntityToDtoConverter productEntityToDtoConverter;
-
-    public IngredientEntityToIngredientCalculatedConverter(ProductEntityToDtoConverter productEntityToDtoConverter) {
-        this.productEntityToDtoConverter = productEntityToDtoConverter;
-    }
-
     @Override
     public IngredientCalculated convert(IngredientEntity source) {
 
         IngredientCalculated.IngredientCalculatedBuilder ingredientBuilder
-                = IngredientCalculated.IngredientCalculatedBuilder.create();
+                = IngredientCalculated.builder();
 
         ProductEntity productEntity = source.getProduct();
         int ingredientWeight = source.getWeight();

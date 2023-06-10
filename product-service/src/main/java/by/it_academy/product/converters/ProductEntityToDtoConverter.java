@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class ProductEntityToDtoConverter implements Converter<ProductEntity, Product> {
     @Override
     public Product convert(ProductEntity source) {
-        return Product.ProductBuilder.create()
+        return Product.builder()
                 .setUuid(source.getUuid())
                 .setDtCreate(source.getDtCreate())
                 .setDtUpdate(source.getDtUpdate())

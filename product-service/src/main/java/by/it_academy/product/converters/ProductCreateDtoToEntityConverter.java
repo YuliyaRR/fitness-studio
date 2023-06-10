@@ -14,7 +14,7 @@ public class ProductCreateDtoToEntityConverter implements Converter<ProductCreat
     public ProductEntity convert(ProductCreate source) {
         LocalDateTime dtCreate = LocalDateTime.now();
 
-        return ProductEntity.ProductEntityBuilder.create()
+        return ProductEntity.builder()
                 .setUuid(UUID.randomUUID())
                 .setDtCreate(dtCreate)
                 .setDtUpdate(dtCreate)
