@@ -12,10 +12,14 @@ import java.util.UUID;
 public class EmailDetailsToEntityConverter implements Converter<EmailDetails, MailEntity> {
     @Override
     public MailEntity convert(EmailDetails source) {
-        return new MailEntity(UUID.randomUUID(),
-                source.getMsgBody(),
-                source.getRecipient(),
-                MailTheme.getMailThemeByDescription(source.getSubject()),
-                false,0, 5);
+        return MailEntity.builder()
+                .uuid(UUID.randomUUID())
+                .message(source.getMsgBody())
+                .email(source.getRecipient())
+                .theme(MailTheme.getMailThemeByDescription(source.getSubject()))
+                .isSend(false)
+                .attemptOfSending(0)
+                .limitOfAttempts(5)
+                .build();
     }
 }
