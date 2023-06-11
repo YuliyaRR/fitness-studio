@@ -10,6 +10,7 @@ import by.it_academy.mail.repositories.api.MailEntityRepository;
 import by.it_academy.mail.service.api.IMailService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.task.TaskExecutor;
@@ -18,12 +19,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Service
 @Validated
+@RequiredArgsConstructor
 public class MailService implements IMailService {
     private final JavaMailSender javaMailSender;
     private final MailEntityRepository repository;
@@ -31,15 +34,6 @@ public class MailService implements IMailService {
     private final TaskExecutor taskExecutor;
     @Value("${spring.mail.username}")
     private String username;
-
-    public MailService(MailEntityRepository repository,
-                       JavaMailSender javaMailSender,
-                       ConversionService conversionService, TaskExecutor taskExecutor) {
-        this.repository = repository;
-        this.javaMailSender = javaMailSender;
-        this.conversionService = conversionService;
-        this.taskExecutor = taskExecutor;
-    }
 
     @Override
     public void save(@NotNull @Valid EmailDetails emailDetails) {
