@@ -10,23 +10,21 @@ import by.it_academy.audit.repositories.api.AuditEntityRepository;
 import by.it_academy.audit.service.api.IAuditService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.UUID;
-
+@Service
 @Validated
+@RequiredArgsConstructor
 public class AuditService implements IAuditService {
     private final AuditEntityRepository repository;
     private final ConversionService conversionService;
-
-    public AuditService(AuditEntityRepository repository, ConversionService conversionService) {
-        this.repository = repository;
-        this.conversionService = conversionService;
-    }
 
     @Override
     public void save(@NotNull @Valid AuditDTO auditDTO) {
