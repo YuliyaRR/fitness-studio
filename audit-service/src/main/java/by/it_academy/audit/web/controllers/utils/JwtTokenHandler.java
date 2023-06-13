@@ -4,18 +4,15 @@ import by.it_academy.audit.config.JWTProperty;
 import by.it_academy.audit.core.dto.UserRole;
 import by.it_academy.audit.core.dto.UserToken;
 import io.jsonwebtoken.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.UUID;
-
+@RequiredArgsConstructor
 @Component
 public class JwtTokenHandler {
     private final JWTProperty property;
-
-    public JwtTokenHandler(JWTProperty property) {
-        this.property = property;
-    }
 
     public String getMail(String token) {
         Claims claims = Jwts.parser()
