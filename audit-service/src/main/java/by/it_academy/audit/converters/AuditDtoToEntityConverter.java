@@ -9,17 +9,16 @@ import org.springframework.stereotype.Component;
 public class AuditDtoToEntityConverter implements Converter<AuditDTO, AuditEntity> {
     @Override
     public AuditEntity convert(AuditDTO source) {
-        AuditEntity entity = new AuditEntity();
-        entity.setUuid(source.getUuid());
-        entity.setDtCreate(source.getDtCreate());
-        entity.setUserUUID(source.getUser().getUuid());
-        entity.setUserMail(source.getUser().getMail());
-        entity.setUserFio(source.getUser().getFio());
-        entity.setRole(source.getUser().getRole());
-        entity.setText(source.getText());
-        entity.setType(source.getType());
-        entity.setId(source.getId());
-
-        return entity;
+        return AuditEntity.builder()
+                .uuid(source.getUuid())
+                .dtCreate(source.getDtCreate())
+                .userUUID(source.getUser().getUuid())
+                .userMail(source.getUser().getMail())
+                .userFio(source.getUser().getFio())
+                .role(source.getUser().getRole())
+                .text(source.getText())
+                .type(source.getType())
+                .id(source.getId())
+                .build();
     }
 }

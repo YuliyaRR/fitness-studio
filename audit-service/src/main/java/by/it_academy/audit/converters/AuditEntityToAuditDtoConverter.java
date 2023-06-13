@@ -13,13 +13,13 @@ import java.util.UUID;
 public class AuditEntityToAuditDtoConverter implements Converter<AuditEntity, AuditDTO> {
     @Override
     public AuditDTO convert(AuditEntity source) {
-        AuditDTO auditDTO = new AuditDTO();
+        AuditDTO.AuditDTOBuilder builder = AuditDTO.builder();
 
-        auditDTO.setUuid(source.getUuid());
-        auditDTO.setDtCreate(source.getDtCreate());
-        auditDTO.setText(source.getText());
-        auditDTO.setType(source.getType());
-        auditDTO.setId(source.getId());
+        builder.uuid(source.getUuid());
+        builder.dtCreate(source.getDtCreate());
+        builder.text(source.getText());
+        builder.type(source.getType());
+        builder.id(source.getId());
 
         UserToken user;
 
@@ -39,8 +39,8 @@ public class AuditEntityToAuditDtoConverter implements Converter<AuditEntity, Au
             user.setRole(role);
         }
 
-        auditDTO.setUser(user);
+        builder.user(user);
 
-        return auditDTO;
+        return builder.build();
     }
 }
