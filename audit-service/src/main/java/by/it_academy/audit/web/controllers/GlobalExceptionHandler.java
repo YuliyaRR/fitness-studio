@@ -9,6 +9,7 @@ import by.it_academy.audit.core.exception.InvalidInputServiceSingleException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -18,12 +19,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@NoArgsConstructor
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    public GlobalExceptionHandler() {
-    }
-
     @ExceptionHandler
     public ResponseEntity<ResponseMultiError> handle(MethodArgumentNotValidException e) {
         List<LocalError> localErrors = e.getBindingResult().getAllErrors()
