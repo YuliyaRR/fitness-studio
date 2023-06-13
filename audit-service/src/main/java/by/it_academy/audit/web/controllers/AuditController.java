@@ -4,21 +4,18 @@ import by.it_academy.audit.core.dto.AuditDTO;
 import by.it_academy.audit.core.dto.OnePage;
 import by.it_academy.audit.service.api.IAuditService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(path = "/audit")
 public class AuditController {
     private final IAuditService auditService;
-
-    public AuditController(IAuditService auditService) {
-        this.auditService = auditService;
-    }
     @RequestMapping(path = "/inner", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void save(@RequestBody @Valid AuditDTO auditDTO){
