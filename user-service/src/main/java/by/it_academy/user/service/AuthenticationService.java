@@ -5,45 +5,37 @@ import by.it_academy.user.core.dto.error.ErrorCode;
 import by.it_academy.user.core.dto.mail.EmailDetails;
 import by.it_academy.user.core.dto.mail.MailTheme;
 import by.it_academy.user.core.dto.user.*;
+import by.it_academy.user.core.events.SendEmailRequestEvent;
+import by.it_academy.user.core.events.VerificationCodeSavingEvent;
+import by.it_academy.user.core.events.VerificationCodeVerifyEvent;
 import by.it_academy.user.core.exception.ConversionTimeException;
 import by.it_academy.user.core.exception.InvalidLoginException;
-import by.it_academy.user.core.exception.SendMultiException;
-import by.it_academy.user.core.exception.SendSingleException;
 import by.it_academy.user.entity.UserEntity;
 import by.it_academy.user.repositories.api.AuthEntityRepository;
 import by.it_academy.user.service.api.IAuthenticationService;
 import by.it_academy.user.service.api.IUserService;
-import by.it_academy.user.service.api.IVerificationService;
 import by.it_academy.user.validator.api.ValidEmail;
-import com.google.gson.Gson;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Validated
 @Transactional(readOnly = true)
 public class AuthenticationService implements IAuthenticationService {
-    @Value("${mail.url}")
-    private String MAIL_URL;
     private final AuthEntityRepository repository;
     private final IUserService userService;
-    private final IVerificationService verificationService;
     private final ConversionService conversionService;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     @Transactional
@@ -55,18 +47,19 @@ public class AuthenticationService implements IAuthenticationService {
         UserCreateDTO convert = conversionService.convert(userRegistration, UserCreateDTO.class);
         userService.save(convert);
 
-        UUID code = UUID.randomUUID();
-        VerificationCode verificationCode = new VerificationCode(userRegistration.getMail(), code);
-        verificationService.save(verificationCode);
+        VerificationCode verificationCode = new VerificationCode(userRegistration.getMail(), UUID.randomUUID());
 
-        EmailDetails details = createMailForVerification(verificationCode);
-        sendMailRequest(details);
+        publisher.publishEvent(new VerificationCodeSavingEvent(verificationCode));
+
+        publisher.publishEvent(new SendEmailRequestEvent(createMailForVerification(verificationCode)));
+
     }
 
     @Override
     @Transactional
     public void verification(@NotNull @Valid VerificationCode verificationCode) {
-        verificationService.verify(verificationCode);
+        publisher.publishEvent(new VerificationCodeVerifyEvent(verificationCode));
+
         UserEntity userEntity = repository.findByMail(verificationCode.getMail())
                 .orElseThrow(() -> new InvalidLoginException("User with this email doesn't exist", ErrorCode.ERROR));
         userService.updateStatus(UserStatus.ACTIVATED, userEntity.getUuid());
@@ -108,32 +101,5 @@ public class AuthenticationService implements IAuthenticationService {
         details.setMsgBody(verificationCode.getCode().toString());
         details.setSubject(MailTheme.VERIFICATION_CODE.getDescription());
         return details;
-    }
-
-    private void sendMailRequest (EmailDetails emailDetails) {
-        HttpClient client = HttpClient.newHttpClient();
-        Gson gson = new Gson();
-        String json = gson.toJson(emailDetails);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(MAIL_URL))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json))
-                .build();
-
-        try {
-            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
-            int statusCode = send.statusCode();
-            String body = send.body();
-
-            if(statusCode >= 400 && statusCode < 500) {
-                throw new SendMultiException(body);
-            } else if (statusCode >= 500) {
-                throw new SendSingleException(body);
-            }
-
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
